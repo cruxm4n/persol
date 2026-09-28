@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { brandOrder, journey } from '../content'
+import { journey } from '../content'
 
 /**
  * The career as one line in space: t = 0 is 2018, t = 1 is today.
@@ -43,15 +43,17 @@ export function sideAt(u: number, out = new THREE.Vector3()) {
   return out.crossVectors(curve.getTangentAt(THREE.MathUtils.clamp(u, 0, 1)), up).normalize()
 }
 
-/** Brands are placed in alphabetical order: position on the line is NOT a date. */
-export const BRAND_SPAN = [0.12, 0.6] as const
-export const brandStakes = brandOrder.map((b, i) => {
-  const u = BRAND_SPAN[0] + ((BRAND_SPAN[1] - BRAND_SPAN[0]) * i) / (brandOrder.length - 1)
-  const p = curve.getPointAt(u)
-  const side = i % 2 === 0 ? -1 : 1
-  const base = p.clone().addScaledVector(sideAt(u), side * 5.5)
-  return { ...b, u, base, top: p.y + 3.2 + (i % 3) * 0.9, side }
-})
+/**
+ * The three stops sit along the line as stations of the visit. Their order is
+ * thematic, not chronological: no year is shown near them.
+ */
+export const STOP_U = [0.2, 0.4, 0.62] as const
+
+/** Where a stop's scene is built: beside the line, on its right-hand side. */
+export function stopCentre(i: number, out = new THREE.Vector3()) {
+  const u = STOP_U[i]
+  return out.copy(curve.getPointAt(u)).addScaledVector(sideAt(u), 13).setY(curve.getPointAt(u).y + 2)
+}
 
 /** Only 2018 and today are dated; intermediate steps stay undated on purpose. */
 export const milestones = journey.map((j, i) => ({ ...j, u: i / (journey.length - 1) }))

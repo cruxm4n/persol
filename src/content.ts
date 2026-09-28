@@ -36,37 +36,6 @@ export const profile = {
   ],
 }
 
-export type Brand = { name: string; sector: string }
-
-export const brandSectors = [
-  { id: 'tech', label: 'Tech & Gaming' },
-  { id: 'entertainment', label: 'Divertissement' },
-  { id: 'telecom', label: 'Télécom' },
-  { id: 'lifestyle', label: 'Sport & Lifestyle' },
-] as const
-
-export const brands: Brand[] = [
-  { name: 'ASUS ROG', sector: 'tech' },
-  { name: 'ASUS', sector: 'tech' },
-  { name: 'Cooler Master', sector: 'tech' },
-  { name: 'Lenovo', sector: 'tech' },
-  { name: 'HP', sector: 'tech' },
-  { name: 'Samsung', sector: 'tech' },
-  { name: 'Xiaomi', sector: 'tech' },
-  { name: 'POCO', sector: 'tech' },
-  { name: 'Nintendo', sector: 'tech' },
-  { name: 'Netflix', sector: 'entertainment' },
-  { name: 'Prime Video', sector: 'entertainment' },
-  { name: 'Orange', sector: 'telecom' },
-  { name: 'Red Bull', sector: 'lifestyle' },
-  { name: 'Nike', sector: 'lifestyle' },
-]
-
-/** Alphabetical: the index makes no claim about when each mission happened. */
-export const brandOrder = [...brands].sort((a, b) => a.name.localeCompare(b.name, 'fr'))
-
-export const brandsNote = 'Accompagnées depuis 2018, en direct ou via agence.'
-
 export type Project = {
   id: string
   title: string
@@ -168,7 +137,7 @@ export const contact = {
 export const chapters = [
   { id: 'lancement', code: '00', label: 'Lancement' },
   { id: 'profil', code: '01', label: 'Profil' },
-  { id: 'marques', code: '02', label: 'Marques' },
+  { id: 'community-engine', code: '02', label: 'Community Engine' },
   { id: 'projets', code: '03', label: 'Missions' },
   { id: 'expertises', code: '04', label: 'Expertises' },
   { id: 'stack', code: '05', label: 'Instruments' },

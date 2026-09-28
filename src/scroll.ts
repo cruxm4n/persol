@@ -4,21 +4,43 @@ import { flight, setUi } from './store'
 
 let lenis: Lenis | null = null
 
+type Band = { top: number; bottom: number }
+
 /** Viewport-centre position of each chapter's centre, in document px. */
 let centres: number[] = []
-/** Same, for each row of the brand index. */
-let brandRows: number[] = []
+/** Extent of each stop section, in stop order. */
+let stopBands: (Band | null)[] = []
+/** Extent of each case study. */
+let projectBands: (Band & { id: string })[] = []
+/** Sticky track of each stop's main case study. */
+let caseBands: (Band | null)[] = []
+
+/** Number of narrative steps in a main case study (one per role step). */
+export const CASE_STEPS = 4
+
+const band = (el: HTMLElement): Band => {
+  const r = el.getBoundingClientRect()
+  return { top: r.top + window.scrollY, bottom: r.bottom + window.scrollY }
+}
 
 function measure() {
   const els = Array.from(document.querySelectorAll<HTMLElement>('[data-chapter]'))
   centres = els.map((el) => {
-    const r = el.getBoundingClientRect()
-    return r.top + window.scrollY + r.height / 2
+    const b = band(el)
+    return (b.top + b.bottom) / 2
   })
-  brandRows = Array.from(document.querySelectorAll<HTMLElement>('[data-brand-row]')).map((el) => {
-    const r = el.getBoundingClientRect()
-    return r.top + window.scrollY + r.height / 2
+  stopBands = [0, 1, 2].map((i) => {
+    const el = document.querySelector<HTMLElement>(`[data-stop="${i}"]`)
+    return el ? band(el) : null
   })
+  caseBands = [0, 1, 2].map((i) => {
+    const el = document.querySelector<HTMLElement>(`[data-case-track="${i}"]`)
+    return el ? band(el) : null
+  })
+  projectBands = Array.from(document.querySelectorAll<HTMLElement>('[data-project]')).map((el) => ({
+    ...band(el),
+    id: el.dataset.project!,
+  }))
 }
 
 /** Fractional index of the row at the viewport centre (piecewise linear). */
@@ -35,20 +57,47 @@ function indexAt(list: number[], scrollY: number) {
 }
 
 function update(scrollY: number) {
+  const probe = scrollY + window.innerHeight / 2
   flight.chapter = indexAt(centres, scrollY)
-  flight.brand = indexAt(brandRows, scrollY)
-  const inBrands = Math.abs(flight.chapter - 2) < 0.6
-  setUi({ active: Math.round(flight.chapter), currentBrand: inBrands ? Math.round(flight.brand) : -1 })
+  stopBands.forEach((b, i) => {
+    flight.stops[i] = b ? Math.min(1, Math.max(0, (probe - b.top) / (b.bottom - b.top))) : 0
+  })
+  let phase = -1
+  caseBands.forEach((b, i) => {
+    if (!b) return
+    // the sticky sheet pins at the top: progress runs while the track scrolls under it
+    const p = (scrollY + window.innerHeight * 0.3 - b.top) / (b.bottom - b.top - window.innerHeight * 0.7)
+    flight.cases[i] = Math.min(1, Math.max(0, p))
+    if (p >= 0 && p <= 1.05) phase = Math.min(CASE_STEPS - 1, Math.floor(Math.min(0.999, Math.max(0, p)) * CASE_STEPS))
+  })
+  const project = projectBands.find((b) => probe >= b.top && probe <= b.bottom)?.id ?? null
+  const inStop = flight.stops.some((v) => v > 0.02 && v < 0.98)
+  setUi({ active: Math.round(flight.chapter), project, phase, inStop })
   if (flight.chapter > 0.15) setUi({ started: true })
+}
+
+function scrollToY(target: number) {
+  if (lenis) lenis.scrollTo(target, { duration: 2.4, easing: (t) => 1 - Math.pow(1 - t, 4) })
+  else window.scrollTo({ top: target, behavior: flight.reducedMotion ? 'auto' : 'smooth' })
 }
 
 export function scrollToChapter(index: number) {
   const el = document.querySelectorAll<HTMLElement>('[data-chapter]')[index]
   if (!el) return
   const r = el.getBoundingClientRect()
-  const target = r.top + window.scrollY + r.height / 2 - window.innerHeight / 2
-  if (lenis) lenis.scrollTo(target, { duration: 2.4, easing: (t) => 1 - Math.pow(1 - t, 4) })
-  else window.scrollTo({ top: target, behavior: flight.reducedMotion ? 'auto' : 'smooth' })
+  scrollToY(r.top + window.scrollY + r.height / 2 - window.innerHeight / 2)
+}
+
+/** Bring an element's top to a third of the viewport. */
+export function scrollToElement(el: HTMLElement) {
+  scrollToY(el.getBoundingClientRect().top + window.scrollY - window.innerHeight * 0.18)
+}
+
+/** Freeze the page behind an overlay (the brand index). */
+export function pauseScroll(paused: boolean) {
+  if (!lenis) return
+  if (paused) lenis.stop()
+  else lenis.start()
 }
 
 export function useScrollDriver() {

@@ -7,7 +7,7 @@ Chaque chapitre du parcours est un lieu du monde 3D.
 |---|----------|----------|
 | 00 | Lancement | Aire de décollage balisée, feux clignotants |
 | 01 | Profil | Noyau stratégique → 5 disciplines → audiences au sol (signaux en transit) |
-| 02 | Marques | Avenue de stations : un panneau par marque, qui s'allume au survol ou au passage du drone |
+| 02 | Stop 02 — Community Engine | Réseau marque → profils → communautés, tracé étape par étape du rôle ; fiche éditoriale épinglée |
 | 03 | Missions | Trois écrans de contrôle ; choisir un dossier allume l'écran et oriente la caméra |
 | 04–05 | Expertises / Instruments | Tour à 4 niveaux : disciplines sur l'axe, outils en orbite |
 | 06 | Résultats | Chiffres peints sur une piste d'atterrissage, feux d'approche séquencés |
@@ -26,7 +26,11 @@ npm run build    # build de production dans dist/ (chemins relatifs, déployable
 
 ## Modifier le contenu
 
-Tout le texte est dans `src/content.ts`. Les champs marqués `TODO` étaient des valeurs provisoires
+Les stops, projets et marques sont dans `src/lib/portfolio-data.ts` : pour relier une marque à un projet,
+ajoutez son id dans `brandIds` du projet — l'Index (en-tête) se met à jour seul. `SHOW_GAPS` affiche
+« À compléter » sur les champs vides ; passez-le à `false` au lancement pour les masquer.
+
+Le reste du texte est dans `src/content.ts`. Les champs marqués `TODO` étaient des valeurs provisoires
 sur le site d'origine et sont à compléter :
 
 - `contact.email` et `contact.linkedin` (le site d'origine affichait `contact@example.com`)

@@ -1,6 +1,7 @@
 import { lazy, Suspense, useMemo } from 'react'
 import { Chapters } from './ui/Chapters'
 import { Masthead } from './ui/Masthead'
+import { BrandIndex } from './ui/BrandIndex'
 import { useScrollDriver } from './scroll'
 import { useUi } from './store'
 
@@ -19,7 +20,7 @@ function hasWebGL() {
 export default function App() {
   useScrollDriver()
   const ready = useUi((s) => s.ready)
-  const active = useUi((s) => s.active)
+  const inStop = useUi((s) => s.inStop)
   const { webgl, lite } = useMemo(() => {
     const small = window.matchMedia('(max-width: 760px), (pointer: coarse)').matches
     return { webgl: hasWebGL(), lite: small }
@@ -31,7 +32,7 @@ export default function App() {
         Aller au contenu
       </a>
       {webgl ? (
-        <div className={`stage ${ready ? 'is-ready' : ''} ${active === 2 ? 'is-under-index' : ''}`}>
+        <div className={`stage ${ready ? 'is-ready' : ''} ${inStop ? 'is-under-text' : ''}`}>
           <Suspense fallback={null}>
             <World lite={lite} />
           </Suspense>
@@ -43,6 +44,7 @@ export default function App() {
       )}
       <Masthead />
       <Chapters />
+      <BrandIndex />
     </>
   )
 }

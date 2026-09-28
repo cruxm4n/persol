@@ -15,21 +15,28 @@ export const flight = {
   reducedMotion: false,
   /** position of the camera along the career line, 0 (2018) to 1 (today) */
   u: 0,
-  /** fractional row of the brand index at the viewport centre */
-  brand: 0,
-  brandSmooth: 0,
+  /** progress through each stop section, 0 before it to 1 after it (index = stop order) */
+  stops: [0, 0, 0] as number[],
+  stopsSmooth: [0, 0, 0] as number[],
+  /** progress through the main case study of each stop (its sticky track) */
+  cases: [0, 0, 0] as number[],
 }
 
 type UiState = {
   active: number
   focusProject: number | null
-  hoverBrand: string | null
-  currentBrand: number
+  /** id of the case study at the viewport centre */
+  project: string | null
+  indexOpen: boolean
+  /** which step of the main case's role is being shown, per stop */
+  phase: number
+  /** a stop section is on screen */
+  inStop: boolean
   started: boolean
   ready: boolean
 }
 
-let ui: UiState = { active: 0, focusProject: null, hoverBrand: null, currentBrand: -1, started: false, ready: false }
+let ui: UiState = { active: 0, focusProject: null, project: null, indexOpen: false, phase: -1, inStop: false, started: false, ready: false }
 const listeners = new Set<() => void>()
 
 export function setUi(patch: Partial<UiState>) {

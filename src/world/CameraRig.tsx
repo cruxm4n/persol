@@ -2,7 +2,8 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo } from 'react'
 import * as THREE from 'three'
 import { flight } from '../store'
-import { BRAND_SPAN, brandStakes, curve, future, sideAt } from './line'
+import { stopWeight } from './util'
+import { STOP_U, curve, future, sideAt, stopCentre } from './line'
 
 /**
  * The camera is always placed relative to the career line: `u` along it, then
@@ -35,8 +36,8 @@ const PLAN: Key[] = [
   { c: 0, u: 0, a: 1 },
   { c: 0.2, u: 0, a: 1 },
   ...hold(1, { u: 0.03, back: 12, side: -7, h: 4, ahead: 0.08, tside: -2 }),
-  { c: 1.62, u: 0.105, back: 18, side: 17, h: 8, ahead: 0.05, tside: 9 },
-  { c: 2.42, u: 0.6, back: 18, side: 17, h: 8, ahead: 0.05, tside: 9 },
+  // chapter 2 is Stop 02: the orbit below takes over while it is on screen
+  ...hold(2, { u: STOP_U[1], back: 14, side: -8, h: 6, ahead: 0.05, tside: 6 }, 0.3),
   ...hold(3, { u: 0.66, back: 13, side: -8, h: 5, ahead: 0.06, tside: -2 }),
   ...hold(4, { u: 0.72, back: 13, side: -8, h: 5, ahead: 0.06, tside: -2 }),
   ...hold(5, { u: 0.78, back: 13, side: -8, h: 6, ahead: 0.06, tside: -2 }),
@@ -79,9 +80,9 @@ export function CameraRig() {
       tan: new THREE.Vector3(),
       pos: new THREE.Vector3(),
       target: new THREE.Vector3(),
-      stake: new THREE.Vector3(),
-      stake2: new THREE.Vector3(),
-      bp: new THREE.Vector3(),
+      centre: stopCentre(1),
+      orbit: new THREE.Vector3(),
+      look: new THREE.Vector3(),
     }),
     [],
   )
@@ -96,13 +97,10 @@ export function CameraRig() {
     const dt = Math.min(delta, 0.05)
     flight.smooth = THREE.MathUtils.damp(flight.smooth, flight.chapter, flight.reducedMotion ? 30 : 3, dt)
     const k = interpolate(flight.smooth)
-    // In the brand chapter the camera follows the index row being read.
-    const inBrands = THREE.MathUtils.smoothstep(flight.smooth, 1.5, 1.7) * (1 - THREE.MathUtils.smoothstep(flight.smooth, 2.3, 2.5))
-    flight.brandSmooth = THREE.MathUtils.damp(flight.brandSmooth, flight.brand, flight.reducedMotion ? 30 : 3, dt)
-    const last = brandStakes.length - 1
-    const bf = THREE.MathUtils.clamp(flight.brandSmooth, 0, last)
-    const uBrand = BRAND_SPAN[0] + (BRAND_SPAN[1] - BRAND_SPAN[0]) * (bf / last)
-    if (inBrands > 0) k.u = THREE.MathUtils.lerp(k.u, uBrand, inBrands)
+    // Stop 02: organic orbit around the network while its section is on screen
+    const p2 = flight.stopsSmooth[1]
+    const inStop2 = stopWeight(1)
+    if (inStop2 > 0) k.u = THREE.MathUtils.lerp(k.u, STOP_U[1], inStop2)
     flight.u = k.u
 
     const u = THREE.MathUtils.clamp(k.u, 0, 1)
@@ -116,19 +114,25 @@ export function CameraRig() {
     tmp.pos.y += k.h
     pointAt(k.u + k.ahead, tmp.target).addScaledVector(tmp.s, k.tside)
 
-    if (inBrands > 0) {
-      // look straight at the stake of the row being read, from above the line
-      const i0 = Math.floor(bf)
-      const i1 = Math.min(last, i0 + 1)
-      const a = brandStakes[i0]
-      const b = brandStakes[i1]
-      tmp.stake.set(a.base.x, a.top, a.base.z).lerp(tmp.stake2.set(b.base.x, b.top, b.base.z), bf - i0)
-      pointAt(uBrand, tmp.bp)
-      tmp.bp.addScaledVector(curve.getTangentAt(uBrand), -17)
-      tmp.bp.y += 8
-      tmp.pos.lerp(tmp.bp, inBrands)
-      tmp.stake.addScaledVector(sideAt(uBrand, tmp.s), 1.2)
-      tmp.target.lerp(tmp.stake, inBrands)
+    if (inStop2 > 0) {
+      // the camera drifts around the network: a long arc, breathing in and out
+      const tan = curve.getTangentAt(STOP_U[1])
+      const base = Math.atan2(-tan.x, -tan.z) + Math.PI * 0.15
+      const theta = base + p2 * Math.PI * 0.7
+      const radius = 36 - 7 * Math.sin(Math.PI * p2)
+      const height = 9 + 6 * Math.sin(Math.PI * 2 * p2 * 0.75)
+      tmp.orbit.set(Math.sin(theta) * radius, height, Math.cos(theta) * radius).add(tmp.centre)
+      tmp.look.copy(tmp.centre)
+      tmp.look.y -= 1
+      tmp.pos.lerp(tmp.orbit, inStop2)
+      tmp.target.lerp(tmp.look, inStop2)
+    }
+    // on wide screens the text of Stop 02 sits right: shift the picture left
+    const cam = camera as THREE.PerspectiveCamera
+    const film = size.width / size.height > 1.1 ? 9 * inStop2 : 0
+    if (Math.abs(cam.filmOffset - film) > 1e-3) {
+      cam.filmOffset = film
+      cam.updateProjectionMatrix()
     }
     if (k.a > 0) {
       tmp.pos.lerp(OVERVIEW_A.pos, k.a)

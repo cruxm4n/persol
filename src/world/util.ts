@@ -12,3 +12,9 @@ export function presence(i: number, spread = 1) {
   const x = THREE.MathUtils.clamp(1 - d / spread, 0, 1)
   return x * x * (3 - 2 * x)
 }
+
+/** 1 while stop `i`'s section fills the screen, easing in and out at its edges. */
+export function stopWeight(i: number) {
+  const p = flight.stopsSmooth[i]
+  return THREE.MathUtils.smoothstep(p, 0, 0.12) * (1 - THREE.MathUtils.smoothstep(p, 0.9, 1))
+}

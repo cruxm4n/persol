@@ -1,8 +1,5 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import {
-  brandOrder,
-  brandSectors,
-  brandsNote,
   chapters,
   contact,
   expertises,
@@ -16,6 +13,8 @@ import {
 } from '../content'
 import { scrollToChapter } from '../scroll'
 import { setUi, useUi } from '../store'
+import { stops } from '../lib/portfolio-data'
+import { StopSection } from './Stop'
 
 function Chapter({
   index,
@@ -86,44 +85,6 @@ function Profile() {
         ))}
       </ul>
     </Chapter>
-  )
-}
-
-function Brands() {
-  const hover = useUi((s) => s.hoverBrand)
-  const current = useUi((s) => s.currentBrand)
-  const sectorLabel = (id: string) => brandSectors.find((s) => s.id === id)?.label ?? ''
-  return (
-    <section id="marques" data-chapter={2} className="brands" aria-labelledby="marques-title">
-      <div className="brands-head">
-        <h2 id="marques-title" className="brands-count">
-          {brandOrder.length}
-          <span>marques</span>
-        </h2>
-        <p className="brands-text">{brandsNote}</p>
-        <p className="brands-note">
-          Classées par ordre alphabétique. Sur la ligne, leur position n'est pas une date.
-        </p>
-      </div>
-      <ol className="brand-index">
-        {brandOrder.map((b, i) => {
-          const on = hover ? hover === b.name : current === i
-          return (
-            <li
-              key={b.name}
-              data-brand-row={i}
-              className={on ? 'is-current' : ''}
-              onPointerEnter={() => setUi({ hoverBrand: b.name })}
-              onPointerLeave={() => setUi({ hoverBrand: null })}
-            >
-              <span className="brand-no">{String(i + 1).padStart(2, '0')}</span>
-              <span className="brand-name">{b.name}</span>
-              <span className="brand-sector">{sectorLabel(b.sector)}</span>
-            </li>
-          )
-        })}
-      </ol>
-    </section>
   )
 }
 
@@ -322,7 +283,7 @@ export function Chapters() {
     <main className="story">
       <Intro />
       <Profile />
-      <Brands />
+      <StopSection stop={stops[1]} chapter={2} next={{ label: `Stop ${stops[2].number} — ${stops[2].title}`, chapter: 3 }} />
       <Missions />
       <Expertises />
       <Stack />

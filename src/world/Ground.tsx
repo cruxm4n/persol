@@ -1,9 +1,10 @@
-import { useMemo } from 'react'
-import { Text } from '@react-three/drei'
-import * as THREE from 'three'
-import { COLORS } from './palette'
-import { FONT } from './util'
-import { GROUND_Y, curve, sideAt, yearAt, years } from './line'
+import { useMemo, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
+import { Text } from "@react-three/drei";
+import * as THREE from "three";
+import { COLORS } from "./palette";
+import { FONT, stopWeight } from "./util";
+import { GROUND_Y, curve, sideAt, yearAt, years } from "./line";
 
 const vertex = /* glsl */ `
   varying vec3 vWorld;
@@ -15,7 +16,7 @@ const vertex = /* glsl */ `
     vDepth = -mv.z;
     gl_Position = projectionMatrix * mv;
   }
-`
+`;
 const fragment = /* glsl */ `
   uniform vec3 uPaper;
   uniform vec3 uGraphite;
@@ -39,7 +40,7 @@ const fragment = /* glsl */ `
     gl_FragColor = vec4(col, 1.0);
     #include <colorspace_fragment>
   }
-`
+`;
 
 /** Graph paper under the line, with one graduation per calendar year. */
 export function Ground() {
@@ -51,47 +52,69 @@ export function Ground() {
       uFar: { value: 230 },
     }),
     [],
-  )
+  );
 
   const marks = useMemo(() => {
-    const seg: THREE.Vector3[] = []
+    const seg: THREE.Vector3[] = [];
     const labels = years.map((y) => {
-      const u = yearAt(y)
-      const p = curve.getPointAt(Math.min(u, 1))
-      const s = sideAt(u)
-      const a = new THREE.Vector3(p.x, GROUND_Y + 0.03, p.z).addScaledVector(s, -9)
-      const b = new THREE.Vector3(p.x, GROUND_Y + 0.03, p.z).addScaledVector(s, 9)
-      seg.push(a, b)
-      const angle = Math.atan2(s.x, s.z) - Math.PI / 2
-      return { y, pos: b.clone().addScaledVector(s, 1), angle }
-    })
-    const geo = new THREE.BufferGeometry().setFromPoints(seg)
-    return { geo, labels }
-  }, [])
+      const u = yearAt(y);
+      const p = curve.getPointAt(Math.min(u, 1));
+      const s = sideAt(u);
+      const a = new THREE.Vector3(p.x, GROUND_Y + 0.03, p.z).addScaledVector(
+        s,
+        -9,
+      );
+      const b = new THREE.Vector3(p.x, GROUND_Y + 0.03, p.z).addScaledVector(
+        s,
+        9,
+      );
+      seg.push(a, b);
+      const angle = Math.atan2(s.x, s.z) - Math.PI / 2;
+      return { y, pos: b.clone().addScaledVector(s, 1), angle };
+    });
+    const geo = new THREE.BufferGeometry().setFromPoints(seg);
+    return { geo, labels };
+  }, []);
+
+  // years are hidden while a stop is on screen: stops are themes, not dates
+  const yearMarks = useRef<THREE.Group>(null);
+  useFrame(() => {
+    if (yearMarks.current) yearMarks.current.visible = stopWeight(1) < 0.25;
+  });
 
   return (
     <group>
       <mesh rotation-x={-Math.PI / 2} position={[0, GROUND_Y, -210]}>
         <planeGeometry args={[900, 900]} />
-        <shaderMaterial vertexShader={vertex} fragmentShader={fragment} uniforms={uniforms} />
+        <shaderMaterial
+          vertexShader={vertex}
+          fragmentShader={fragment}
+          uniforms={uniforms}
+        />
       </mesh>
-      <lineSegments geometry={marks.geo}>
-        <lineBasicMaterial color={COLORS.graphite} transparent opacity={0.6} />
-      </lineSegments>
-      {marks.labels.map((l) => (
-        <Text
-          key={l.y}
-          font={FONT.mono}
-          fontSize={1.3}
-          color={COLORS.graphite}
-          position={l.pos}
-          rotation={[-Math.PI / 2, 0, l.angle]}
-          anchorX="left"
-          anchorY="middle"
-        >
-          {String(l.y)}
-        </Text>
-      ))}
+      <group ref={yearMarks}>
+        <lineSegments geometry={marks.geo}>
+          <lineBasicMaterial
+            color={COLORS.graphite}
+            transparent
+            opacity={0.6}
+          />
+        </lineSegments>
+        {marks.labels.map((l) => (
+          <Text
+            key={l.y}
+            font={FONT.mono}
+            fontSize={1.3}
+            color={COLORS.graphite}
+            position={l.pos}
+            rotation={[-Math.PI / 2, 0, l.angle]}
+            anchorX="left"
+            anchorY="middle"
+          >
+            {String(l.y)}
+          </Text>
+        ))}
+      </group>
     </group>
-  )
+  );
 }

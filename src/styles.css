@@ -172,7 +172,7 @@ button {
   pointer-events: auto;
   text-decoration: none;
 }
-.masthead a:last-child {
+.masthead-nav a {
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 4px;
@@ -181,7 +181,7 @@ button {
 /* ---------- shared grid ---------- */
 
 .hero,
-.brands {
+.stop {
   position: relative;
   z-index: 10;
   display: grid;
@@ -265,82 +265,457 @@ button {
   text-decoration-thickness: 1px;
 }
 
-/* ---------- brands ---------- */
+/* ---------- stops ---------- */
 
-.brands {
-  padding-top: 28vh;
-  padding-bottom: 36vh;
+.stop {
+  padding-top: 22vh;
+  padding-bottom: 8vh;
   align-items: start;
 }
 
-.brands-head {
-  grid-column: 1 / span 5;
-  position: sticky;
-  top: 18vh;
-}
-.brands-count {
-  margin: 0;
-  font-size: var(--t-240);
-  font-weight: 800;
-  font-stretch: 62%;
-  line-height: 0.8;
-  letter-spacing: -0.02em;
-  display: grid;
-}
-.brands-count span {
-  margin-top: 0.2em;
-  font-size: var(--t-56);
-  font-weight: 500;
-  font-stretch: 100%;
-  line-height: 1;
-  letter-spacing: -0.02em;
-}
-.brands-text {
-  margin: 40px 0 0;
-  max-width: 26ch;
-  font-size: var(--t-24);
-  line-height: 1.3;
-}
-.brands-note {
-  margin: 16px 0 0;
-  max-width: 34ch;
-  font-size: var(--t-14);
+/* dashed, like the planned line: this part is not written yet */
+.gap {
   color: var(--graphite);
+  text-decoration: underline dashed 1px;
+  text-underline-offset: 5px;
+  text-decoration-color: var(--graphite);
+}
+.gap-link {
+  text-decoration: inherit;
+  text-underline-offset: inherit;
 }
 
-.brand-index {
-  grid-column: 7 / -1;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.brand-index li {
+.stop-entry {
+  grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: 3.2em minmax(0, 1fr) auto;
-  align-items: baseline;
-  gap: var(--gap);
-  padding: 3.4vh 0;
-  color: var(--graphite);
-  cursor: default;
+  grid-template-columns: subgrid;
+  min-height: 92vh;
+  align-content: start;
 }
-.brand-no,
-.brand-sector {
+.stop-label {
+  grid-column: 1 / -1;
+  margin: 0 0 24px;
   font-family: var(--mono);
   font-size: var(--t-12);
   font-variant-numeric: tabular-nums;
 }
-.brand-name {
-  font-size: var(--t-56);
-  font-weight: 600;
-  font-stretch: 75%;
-  line-height: 1;
+.stop-label span {
+  color: var(--graphite);
+}
+.stop-title {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.18em;
+  margin: 0;
+  font-size: var(--t-120);
+  font-weight: 800;
+  font-stretch: 62%;
+  line-height: 0.84;
   letter-spacing: -0.015em;
 }
-.brand-index li.is-current {
+.stop-no {
+  font-size: 2em;
+  line-height: 0.8;
+  letter-spacing: -0.03em;
+}
+.stop-words {
+  display: grid;
+  padding-top: 0.08em;
+}
+.stop-words span:last-child {
+  /* the second word steps in, like the initial of the hero */
+  padding-left: 0.9em;
+}
+.stop-sub {
+  grid-column: 7 / span 5;
+  margin: 8vh 0 0;
+  font-size: var(--t-32);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.stop-intro {
+  grid-column: 7 / span 4;
+  margin: 20px 0 0;
+  color: var(--graphite);
+  max-width: 40ch;
+}
+.stop--left .stop-sub {
+  grid-column: 2 / span 5;
+}
+.stop--left .stop-intro {
+  grid-column: 2 / span 4;
+}
+
+/* main case study: an editorial sheet, pinned while the scene tells its steps */
+.case-track {
+  grid-column: 7 / -1;
+  height: 300vh;
+}
+.stop--left .case-track,
+.stop--left .minors,
+.stop--left .stop-exit {
+  grid-column: 1 / span 6;
+}
+.case {
+  position: sticky;
+  top: 14vh;
+  max-width: 620px;
+}
+.case-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 20px;
+  font-size: var(--t-14);
+}
+.case-no,
+.case-year {
+  font-family: var(--mono);
+  font-size: var(--t-12);
+  font-variant-numeric: tabular-nums;
+}
+.case-year {
+  margin-left: auto;
+  color: var(--graphite);
+}
+.case-rule {
+  width: 40px;
+  height: 1px;
+  background: var(--ink);
+}
+.case-title {
+  margin: 0;
+  font-size: var(--t-56);
+  font-weight: 700;
+  font-stretch: 75%;
+  line-height: 0.98;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+.case-draft {
+  margin: 18px 0 0;
+  padding-left: 12px;
+  border-left: 1px solid var(--ink);
+  font-size: var(--t-14);
+  color: var(--graphite);
+  max-width: 44ch;
+}
+.case-context {
+  margin: 22px 0 0;
+  font-size: var(--t-24);
+  line-height: 1.3;
+  max-width: 34ch;
+}
+.case-label,
+.case-meta dt {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: var(--t-12);
+  color: var(--graphite);
+}
+.case-meta {
+  margin: 34px 0 0;
+  border-top: 1px solid var(--ink);
+}
+.case-meta > div {
+  display: grid;
+  grid-template-columns: 7.5em minmax(0, 1fr);
+  gap: var(--gap);
+  align-items: baseline;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.case-meta dd {
+  margin: 0;
+  font-size: var(--t-18);
+}
+.case-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+.case-steps li {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  color: var(--graphite);
+  transition: color 0.4s linear;
+}
+.case-steps li.is-done {
   color: var(--ink);
 }
-.brand-index li.is-current .brand-name {
+.case-steps li.is-now {
+  color: var(--ink);
+  font-weight: 700;
+}
+.case-step-no {
+  font-family: var(--mono);
+  font-size: var(--t-12);
+  font-weight: 400;
+}
+.case-result {
+  display: grid;
+  grid-template-columns: 7.5em minmax(0, 1fr);
+  gap: var(--gap);
+  align-items: baseline;
+  padding: 12px 0;
+}
+.case-noresult {
+  margin: 0;
+}
+.case-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 40px;
+  margin: 0;
+}
+.case-metrics div {
+  display: flex;
+  flex-direction: column-reverse;
+}
+.case-metrics dd {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: var(--t-56);
+  line-height: 1;
+}
+.case-metrics dt {
+  font-size: var(--t-14);
+  color: var(--graphite);
+}
+.case-schema {
+  margin: 20px 0 0;
+  font-size: var(--t-12);
+  color: var(--graphite);
+}
+.case-more {
+  display: inline-block;
+  margin-top: 16px;
+  text-underline-offset: 4px;
+}
+
+.minors {
+  grid-column: 7 / -1;
+  margin-top: 12vh;
+}
+.minors ol {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  border-top: 1px solid var(--ink);
+}
+.minor {
+  display: grid;
+  grid-template-columns: 3.4em minmax(0, 1fr);
+  column-gap: var(--gap);
+  padding: 22px 0 24px;
+  border-bottom: 1px solid var(--rule);
+}
+.minor-no {
+  grid-row: span 2;
+  font-family: var(--mono);
+  font-size: var(--t-12);
+  padding-top: 0.7em;
+}
+.minor-title {
+  margin: 0;
+  font-size: var(--t-32);
+  font-weight: 700;
+  font-stretch: 75%;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.minor-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin: 10px 0 0;
+  font-size: var(--t-14);
+  color: var(--graphite);
+}
+.minor-meta span:first-child {
+  color: var(--ink);
+}
+
+.stop-exit {
+  grid-column: 7 / -1;
+  display: grid;
+  gap: 10px;
+  padding: 22vh 0 12vh;
+}
+.stop-exit a {
+  font-size: var(--t-32);
+  font-weight: 600;
+  font-stretch: 75%;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
+}
+
+/* ---------- brand index ---------- */
+
+.masthead-nav {
+  display: flex;
+  gap: 28px;
+  align-items: baseline;
+}
+.masthead-nav button {
+  pointer-events: auto;
+  font-weight: 500;
+}
+.masthead-n,
+.index-n,
+.index-total {
+  font-family: var(--mono);
+  font-size: var(--t-12);
+  font-weight: 400;
+  color: var(--graphite);
+  margin-left: 0.35em;
+  font-variant-numeric: tabular-nums;
+}
+
+.index {
+  position: fixed;
+  inset: 0 0 0 auto;
+  width: min(820px, 100vw);
+  height: 100vh;
+  height: 100dvh;
+  max-width: 100vw;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-left: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+}
+.index::backdrop {
+  background: rgba(18, 18, 18, 0.2);
+}
+.index[open] {
+  animation: index-in 0.5s cubic-bezier(0.2, 0.7, 0, 1);
+}
+@keyframes index-in {
+  from {
+    transform: translateX(32px);
+    opacity: 0;
+  }
+}
+.index-sheet {
+  height: 100%;
+  overflow-y: auto;
+  padding: calc(24px + env(safe-area-inset-top, 0px)) clamp(16px, 3.2vw, 40px) 40px;
+  overscroll-behavior: contain;
+}
+.index-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 8px 24px;
+}
+.index-head h2 {
+  margin: 0;
+  font-size: var(--t-120);
   font-weight: 800;
+  font-stretch: 62%;
+  line-height: 0.84;
+  letter-spacing: -0.015em;
+}
+.index-total {
+  font-size: var(--t-14);
+  vertical-align: top;
+}
+.index-close {
+  font-size: var(--t-14);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+.index-head p {
+  grid-column: 1 / -1;
+  margin: 16px 0 0;
+  max-width: 48ch;
+  font-size: var(--t-14);
+  color: var(--graphite);
+}
+.index-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 22px;
+  margin: 32px 0 20px;
+  font-size: var(--t-14);
+}
+.index-filters button {
+  color: var(--graphite);
+  text-underline-offset: 5px;
+}
+.index-filters button[aria-pressed='true'] {
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+}
+.index-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-14);
+}
+.index-table thead th {
+  padding: 0 12px 8px 0;
+  border-bottom: 1px solid var(--ink);
+  text-align: left;
+  font-family: var(--mono);
+  font-size: var(--t-12);
+  font-weight: 400;
+  color: var(--graphite);
+}
+.index-table thead th[aria-sort='ascending'] button {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.index-table td,
+.index-table tbody th {
+  padding: 11px 12px 11px 0;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: baseline;
+}
+.index-table tbody th {
+  font-size: var(--t-18);
+  font-weight: 600;
+  font-stretch: 85%;
+  white-space: nowrap;
+}
+.index-mono {
+  font-family: var(--mono);
+  font-size: var(--t-12);
+  white-space: nowrap;
+}
+.index-none {
+  white-space: nowrap;
+  color: var(--graphite);
+  text-decoration: underline dashed 1px;
+  text-underline-offset: 4px;
+}
+.index-go {
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+.index-table td:last-child {
+  color: var(--graphite);
+}
+.index-empty {
+  color: var(--graphite);
+  font-size: var(--t-14);
 }
 
 /* ---------- chapters awaiting redesign (tokens only) ---------- */
@@ -606,7 +981,7 @@ button {
     font-size: 17px;
   }
   .hero,
-  .brands {
+  .stop {
     grid-template-columns: minmax(0, 1fr);
   }
   .hero-role,
@@ -614,8 +989,12 @@ button {
   .hero-lede,
   .hero-brands,
   .hero-foot,
-  .brands-head,
-  .brand-index {
+  .stop-entry,
+  .stop .stop-sub,
+  .stop .stop-intro,
+  .stop .case-track,
+  .stop .minors,
+  .stop .stop-exit {
     grid-column: 1;
   }
   .hero {
@@ -638,24 +1017,43 @@ button {
     gap: 8px;
     margin-top: 32px;
   }
-  .brands {
-    padding-top: 16vh;
+  .stop-entry {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+    padding-bottom: 10vh;
   }
-  .brands-head {
-    position: relative;
-    top: 0;
-    margin-bottom: 8vh;
+  .stop-title {
+    flex-direction: column;
+    font-size: 19vw;
   }
-  .brand-index li {
-    grid-template-columns: 2.6em minmax(0, 1fr);
-    padding: 2.4vh 0;
+  .stop-no {
+    font-size: 1.6em;
   }
-  .brand-sector {
-    grid-column: 2;
+  .stop-sub {
+    margin-top: 32px;
   }
-  /* on a phone the index sits over the stakes: step the drawing back */
-  .stage.is-ready.is-under-index {
-    opacity: 0.35;
+  .case-track {
+    height: 220vh;
+  }
+  .case {
+    top: 76px;
+  }
+  .case-meta > div,
+  .case-result {
+    grid-template-columns: 6em minmax(0, 1fr);
+  }
+  .index-table .index-year,
+  .index-table td:nth-child(4),
+  .index-table th:nth-child(4) {
+    display: none;
+  }
+  .index-table tbody th {
+    white-space: normal;
+    line-height: 1.2;
+  }
+  /* on a phone the text sits over the scene: step the drawing back */
+  .stage.is-ready.is-under-text {
+    opacity: 0.3;
   }
   .chapter {
     min-height: 120vh;
@@ -667,7 +1065,11 @@ button {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .stage {
+  .stage,
+  .case-steps li {
     transition: none;
+  }
+  .index[open] {
+    animation: none;
   }
 }
