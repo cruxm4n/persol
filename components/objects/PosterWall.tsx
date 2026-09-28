@@ -6,7 +6,7 @@ import { useFrame, type ThreeElements } from '@react-three/fiber'
 import * as THREE from 'three'
 import { loadImage } from '@/lib/asset-manifest'
 import { experience } from '@/lib/experience-store'
-import { placeholderTexture, surfaceMaterial, toon } from '@/lib/materials'
+import { placeholderTexture, print, surfaceMaterial, toon } from '@/lib/materials'
 import { PALETTE } from '@/lib/scene-config'
 
 /**
@@ -59,7 +59,7 @@ export function PosterWall({
   const board = useRef<THREE.Group>(null)
   const loaded = useImageTexture(image, label)
   const tex = map ?? loaded
-  const front = useMemo(() => new THREE.MeshToonMaterial({ map: tex }), [tex])
+  const front = useMemo(() => print(tex), [tex])
   const legH = 1.1
 
   useFrame((_, dt) => {

@@ -7,6 +7,7 @@ import { experience } from '@/lib/experience-store'
 import { islandShape, pathCurve, rng } from '@/lib/island'
 import { surfaceMaterial, toon, wind } from '@/lib/materials'
 import type { Profile } from '@/lib/responsive-config'
+import { DA } from '@/lib/da'
 import { GROUND, PALETTE } from '@/lib/scene-config'
 import { Forest } from '../objects/StylizedTree'
 import { day } from './WorldLighting'
@@ -134,8 +135,9 @@ const seaFragment = /* glsl */ `
   }
 `
 
-const SHALLOW = [new THREE.Color('#9fd8cb'), new THREE.Color('#e3b99d')]
-const DEEP = [new THREE.Color('#5f9ea3'), new THREE.Color('#566d93')]
+// morning colours from the palette's sea; the sunset ones warm it towards the sky
+const SHALLOW = [new THREE.Color(DA.sea).lerp(new THREE.Color('#ffffff'), 0.38), new THREE.Color('#e3b99d')]
+const DEEP = [new THREE.Color(DA.sea).multiplyScalar(0.86), new THREE.Color('#566d93')]
 
 function Sea() {
   const mat = useMemo(
@@ -147,7 +149,7 @@ function Sea() {
           uTime: wind.uTime,
           uShallow: { value: new THREE.Color() },
           uDeep: { value: new THREE.Color() },
-          uFoam: { value: new THREE.Color('#fbf7ee') },
+          uFoam: { value: new THREE.Color(DA.accent).lerp(new THREE.Color('#ffffff'), 0.5) },
           uSky: { value: new THREE.Color() },
           uFog: { value: new THREE.Color() },
           uSunDir: { value: new THREE.Vector3() },
@@ -284,11 +286,13 @@ function Birds() {
       [1, -1].map((side) => {
         const g = new THREE.BufferGeometry()
         g.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, -0.18, 0, 0, 0.18, 0.75 * side, 0, 0.05], 3))
+        // lit (toon) material: without normals the lighting returns NaN, which bloom spreads over the frame
+        g.computeVertexNormals()
         return g
       }),
     [],
   )
-  const mat = useMemo(() => new THREE.MeshBasicMaterial({ color: '#fbf7ee', side: THREE.DoubleSide }), [])
+  const mat = toon(PALETTE.cloud, { side: THREE.DoubleSide })
   const conf = useMemo(() => [0, 1, 2, 3].map((i) => ({ r: 7 + i * 1.6, h: 11 + (i % 2) * 2.5, speed: 0.22 + i * 0.03, phase: i * 1.7 })), [])
   useFrame(({ clock }) => {
     const t = experience.reducedMotion ? 0 : clock.elapsedTime

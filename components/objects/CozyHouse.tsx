@@ -5,7 +5,7 @@ import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
 import * as THREE from 'three'
 import { PALETTE } from '@/lib/scene-config'
-import { surfaceMaterial, toon } from '@/lib/materials'
+import { glow, surfaceMaterial, toon } from '@/lib/materials'
 
 /** A gable roof: a triangular prism along x, with a little overhang. */
 function roofGeometry(w: number, d: number, h: number) {
@@ -54,7 +54,7 @@ export function CozyHouse({
 } & ThreeElements['group']) {
   const roofGeo = useMemo(() => roofGeometry(w + 0.5, d + 0.7, h * 0.62), [w, d, h])
   const roofMat = surfaceMaterial('roof', roof)
-  const unlit = useMemo(() => new THREE.MeshBasicMaterial({ color: new THREE.Color(PALETTE.lamp).multiplyScalar(0.55) }), [])
+  const unlit = useMemo(() => glow(PALETTE.lamp, 0.55), [])
   const windowMat = windowMaterial ?? unlit
   return (
     <group {...group}>

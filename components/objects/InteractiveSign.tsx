@@ -3,8 +3,7 @@
 import { useMemo } from 'react'
 import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
-import * as THREE from 'three'
-import { signTexture, toon } from '@/lib/materials'
+import { print, signTexture, toon } from '@/lib/materials'
 import { PALETTE } from '@/lib/scene-config'
 
 /** A wooden signpost: a painted word on a board, on a post. */
@@ -15,10 +14,7 @@ export function InteractiveSign({
   height = 2.2,
   ...group
 }: { text: string; sub?: string; width?: number; height?: number } & ThreeElements['group']) {
-  const face = useMemo(() => {
-    const m = new THREE.MeshToonMaterial({ map: signTexture(text, sub) })
-    return m
-  }, [text, sub])
+  const face = useMemo(() => print(signTexture(text, sub)), [text, sub])
   const boardH = width * 0.39
   return (
     <group {...group}>

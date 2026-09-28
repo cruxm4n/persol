@@ -6,7 +6,7 @@ import { useFrame, type ThreeElements } from '@react-three/fiber'
 import * as THREE from 'three'
 import { experience } from '@/lib/experience-store'
 import { LANDMARKS, rng } from '@/lib/island'
-import { surfaceMaterial, toon } from '@/lib/materials'
+import { glow, surfaceMaterial, toon } from '@/lib/materials'
 import { GROUND, PALETTE } from '@/lib/scene-config'
 import { CozyHouse } from '../objects/CozyHouse'
 import { Smoke } from './StudioZone'
@@ -44,7 +44,7 @@ function Fireflies({ count }: { count: number }) {
     const r = rng(17)
     return Array.from({ length: count }, () => ({ x: (r() - 0.5) * 10, y: 1.2 + r() * 2.2, z: -27 - r() * 9, p: r() * 6 }))
   }, [count])
-  const mat = useMemo(() => new THREE.MeshBasicMaterial({ color: new THREE.Color('#ffd98a').multiplyScalar(1.6), toneMapped: false }), [])
+  const mat = useMemo(() => glow('#ffd98a', 1.6), [])
   const tmp = useMemo(() => ({ m: new THREE.Matrix4(), q: new THREE.Quaternion(), p: new THREE.Vector3(), s: new THREE.Vector3() }), [])
   useFrame(({ clock }) => {
     const t = experience.reducedMotion ? 0 : clock.elapsedTime

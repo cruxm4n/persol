@@ -5,7 +5,7 @@ import { useFrame, type ThreeElements } from '@react-three/fiber'
 import * as THREE from 'three'
 import { experience } from '@/lib/experience-store'
 import { span } from '@/lib/motion-config'
-import { toon, windy } from '@/lib/materials'
+import { print, toon, windy } from '@/lib/materials'
 import { stats } from '@/lib/portfolio-data'
 import { clothBanner } from '@/lib/signage'
 import { GROUND, PALETTE, ZONES } from '@/lib/scene-config'
@@ -40,7 +40,7 @@ const PEAKS = HOUSES.map((h) => [h.x, HOUSE.h + HOUSE.h * 0.62 + 0.05, h.z] as [
 function Banner(props: ThreeElements['group']) {
   const cloth = useRef<THREE.Mesh>(null)
   const face = useMemo(
-    () => new THREE.MeshToonMaterial({ map: clothBanner(stats.clients.value, stats.clients.label), side: THREE.DoubleSide }),
+    () => print(clothBanner(stats.clients.value, stats.clients.label), THREE.DoubleSide),
     [],
   )
   useFrame(({ clock }) => {
@@ -141,7 +141,7 @@ export function CreatorVillage() {
       <mesh position={[0, 0.04, 0]} material={toon(PALETTE.stone)} receiveShadow>
         <cylinderGeometry args={[4, 4.1, 0.1, 40]} />
       </mesh>
-      <mesh position={[0, 0.1, 0]} rotation-x={-Math.PI / 2} material={toon('#dcd3c3')} receiveShadow>
+      <mesh position={[0, 0.1, 0]} rotation-x={-Math.PI / 2} material={toon(PALETTE.path)} receiveShadow>
         <ringGeometry args={[1.2, 1.5, 32]} />
       </mesh>
       <PlazaTree />

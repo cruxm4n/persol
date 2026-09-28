@@ -5,7 +5,7 @@ import { RoundedBox } from '@react-three/drei'
 import { useFrame, type ThreeElements } from '@react-three/fiber'
 import * as THREE from 'three'
 import { experience } from '@/lib/experience-store'
-import { toon } from '@/lib/materials'
+import { glow, screen as screenMaterial, toon } from '@/lib/materials'
 import { PALETTE } from '@/lib/scene-config'
 
 /**
@@ -17,7 +17,7 @@ export function DataModule({
   color = PALETTE.roofTeal,
   size = [1.6, 1.5, 1.3] as [number, number, number],
   assemble,
-  screen,
+  screen: screenTexture,
   ...group
 }: {
   color?: string
@@ -28,9 +28,9 @@ export function DataModule({
 } & ThreeElements['group']) {
   const body = useRef<THREE.Group>(null)
   const dial = useRef<THREE.Mesh>(null)
-  const display = useMemo(() => (screen ? new THREE.MeshBasicMaterial({ map: screen, toneMapped: false }) : null), [screen])
-  const lamp = useMemo(() => new THREE.MeshBasicMaterial({ color: '#6b6258', toneMapped: false }), [])
-  const off = useMemo(() => new THREE.Color('#6b6258'), [])
+  const display = useMemo(() => (screenTexture ? screenMaterial(screenTexture) : null), [screenTexture])
+  const lamp = useMemo(() => glow(PALETTE.woodDark), [])
+  const off = useMemo(() => new THREE.Color(PALETTE.woodDark), [])
   const on = useMemo(() => new THREE.Color(PALETTE.lamp).multiplyScalar(1.6), [])
   const [w, h, d] = size
 
@@ -44,7 +44,7 @@ export function DataModule({
       body.current.scale.setScalar(0.6 + 0.4 * e)
     }
     const ready = THREE.MathUtils.clamp((k - 0.85) / 0.15, 0, 1)
-    lamp.color.lerpColors(off, on, ready)
+    lamp.emissive.lerpColors(off, on, ready)
     if (dial.current && !experience.reducedMotion) dial.current.rotation.z -= dt * 2.4 * ready
   })
 

@@ -8,7 +8,7 @@ import { assetPath } from '@/lib/asset-manifest'
 import { stats } from '@/lib/portfolio-data'
 import { figurePoster } from '@/lib/signage'
 import { span } from '@/lib/motion-config'
-import { toon } from '@/lib/materials'
+import { print, toon } from '@/lib/materials'
 import { GROUND, PALETTE, ZONES } from '@/lib/scene-config'
 import { PosterWall, useImageTexture } from '../objects/PosterWall'
 
@@ -46,7 +46,7 @@ function Column(props: ThreeElements['group']) {
     tex.wrapS = THREE.RepeatWrapping
     tex.repeat.set(3, 1)
     tex.needsUpdate = true
-    return new THREE.MeshToonMaterial({ map: tex })
+    return print(tex)
   }, [tex])
   return (
     <group {...props}>
@@ -68,7 +68,7 @@ function Column(props: ThreeElements['group']) {
 
 /** A market stall with a striped awning. */
 function Stall(props: ThreeElements['group']) {
-  const awning = useMemo(() => new THREE.MeshToonMaterial({ map: stripes() }), [])
+  const awning = useMemo(() => print(stripes()), [])
   return (
     <group {...props}>
       <RoundedBox args={[2.6, 1, 1.1]} radius={0.08} position={[0, 0.5, 0]} material={toon(PALETTE.wallWarm)} castShadow receiveShadow />
@@ -113,7 +113,7 @@ function Bunting({ from, to }: { from: [number, number, number]; to: [number, nu
   return (
     <group>
       {flags.map((f, i) => (
-        <mesh key={i} geometry={tri} position={f.p} material={new THREE.MeshToonMaterial({ color: f.color, side: THREE.DoubleSide })} />
+        <mesh key={i} geometry={tri} position={f.p} material={toon(f.color, { side: THREE.DoubleSide })} />
       ))}
     </group>
   )

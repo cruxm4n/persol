@@ -11,6 +11,7 @@ import {
 } from '@/lib/island'
 import { toon, windy } from '@/lib/materials'
 import type { Profile } from '@/lib/responsive-config'
+import { DA } from '@/lib/da'
 import { GROUND, PALETTE } from '@/lib/scene-config'
 
 type Item = { position: [number, number, number]; scale: [number, number, number]; rotation?: number; color?: string }
@@ -47,8 +48,9 @@ export function Instances({
   return <instancedMesh ref={ref} args={[geometry, material, items.length]} castShadow={castShadow} receiveShadow frustumCulled={false} />
 }
 
-const LEAVES = [PALETTE.leaf, PALETTE.leafLight, PALETTE.leafDeep, '#9dbb7c']
-const FLOWERS = ['#fbf4e6', '#f0c98f', '#f2b7a0', '#c9b8dc', '#fbf4e6']
+const LEAVES = [PALETTE.leaf, PALETTE.leafLight, PALETTE.leafDeep, PALETTE.leaf]
+// flowers pick up the palette's light tones: accent cream, roof coral, sky blue, sand
+const FLOWERS = [DA.accent, DA.roofs, DA.sky, PALETTE.roofSand, PALETTE.wall]
 
 /**
  * The island's vegetation: round trees, a few tall cypresses, bushes along
@@ -104,7 +106,7 @@ export function Forest({ profile }: { profile: Profile }) {
     })
     const cyp: Item[] = cypresses.map(({ x, z, r }) => {
       const s = 0.8 + r() * 0.5
-      return { position: [x, G, z], scale: [s, s * (1 + r() * 0.4), s], color: r() > 0.5 ? PALETTE.leafDeep : '#7f9f68' }
+      return { position: [x, G, z], scale: [s, s * (1 + r() * 0.4), s], color: r() > 0.5 ? PALETTE.leafDeep : PALETTE.leaf }
     })
     const bush: Item[] = bushes.map(({ x, z, r }) => {
       const s = 0.7 + r() * 0.7

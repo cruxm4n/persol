@@ -3,6 +3,7 @@
 import { useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import { glow } from '@/lib/materials'
 import { experience } from '@/lib/experience-store'
 import { PALETTE } from '@/lib/scene-config'
 import { day } from './WorldLighting'
@@ -15,10 +16,10 @@ const LIT = new THREE.Color('#ffe2b0').multiplyScalar(1.5)
  * and, whatever happens, as the evening comes.
  */
 export function useGlow(on: (p: number) => number = () => 0) {
-  const mat = useMemo(() => new THREE.MeshBasicMaterial({ color: DIM.clone(), toneMapped: false }), [])
+  const mat = useMemo(() => glow(DIM), [])
   useFrame(() => {
     const k = Math.max(on(experience.smooth), day.t * 0.9)
-    mat.color.lerpColors(DIM, LIT, k)
+    mat.emissive.lerpColors(DIM, LIT, k)
   })
   return mat
 }

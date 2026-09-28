@@ -5,8 +5,9 @@ import { RoundedBox } from '@react-three/drei'
 import { useFrame, type ThreeElements } from '@react-three/fiber'
 import * as THREE from 'three'
 import { experience } from '@/lib/experience-store'
-import { surfaceMaterial, toon } from '@/lib/materials'
+import { print, surfaceMaterial, toon } from '@/lib/materials'
 import { stats } from '@/lib/portfolio-data'
+import { toonRamp } from '@/lib/da'
 import { shopSign } from '@/lib/signage'
 import { GROUND, PALETTE, ZONES } from '@/lib/scene-config'
 import { assetPath } from '@/lib/asset-manifest'
@@ -20,7 +21,7 @@ const at = ZONES.find((z) => z.id === 'studio')!.at
 /** Smoke from the chimney: a few puffs rising, growing, fading, on a loop. */
 export function Smoke({ position }: { position: [number, number, number] }) {
   const puffs = useRef<(THREE.Mesh | null)[]>([])
-  const mats = useMemo(() => [0, 1, 2, 3].map(() => new THREE.MeshToonMaterial({ color: PALETTE.cloud, transparent: true })), [])
+  const mats = useMemo(() => [0, 1, 2, 3].map(() => new THREE.MeshToonMaterial({ color: PALETTE.cloud, transparent: true, gradientMap: toonRamp() })), [])
   useFrame(({ clock }) => {
     const t = experience.reducedMotion ? 0.3 : clock.elapsedTime
     puffs.current.forEach((m, i) => {
@@ -45,7 +46,7 @@ export function Smoke({ position }: { position: [number, number, number] }) {
 /** A painter's easel holding a canvas. */
 function Easel({ image, ...props }: { image?: string } & ThreeElements['group']) {
   const tex = useImageTexture(image, 'Studio')
-  const face = useMemo(() => new THREE.MeshToonMaterial({ map: tex }), [tex])
+  const face = useMemo(() => print(tex), [tex])
   return (
     <group {...props}>
       {[
@@ -80,7 +81,7 @@ function Tripod(props: ThreeElements['group']) {
         </mesh>
       ))}
       <RoundedBox args={[0.55, 0.38, 0.32]} radius={0.06} position={[0, 1.6, 0]} material={toon(PALETTE.ink)} castShadow />
-      <mesh position={[0, 1.6, 0.26]} rotation-x={Math.PI / 2} material={toon('#46434d')}>
+      <mesh position={[0, 1.6, 0.26]} rotation-x={Math.PI / 2} material={toon(PALETTE.woodDark)}>
         <cylinderGeometry args={[0.12, 0.14, 0.24, 14]} />
       </mesh>
     </group>
@@ -89,7 +90,7 @@ function Tripod(props: ThreeElements['group']) {
 
 /** The studio's sign on two posts: since when it has been open. */
 function ShopSign(props: ThreeElements['group']) {
-  const face = useMemo(() => new THREE.MeshToonMaterial({ map: shopSign(stats.since.value, stats.since.label) }), [])
+  const face = useMemo(() => print(shopSign(stats.since.value, stats.since.label)), [])
   const W = 2.8
   const H = W * 0.35
   return (

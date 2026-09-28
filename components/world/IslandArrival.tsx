@@ -6,7 +6,7 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { experience } from '@/lib/experience-store'
 import { LANDMARKS } from '@/lib/island'
-import { surfaceMaterial, toon } from '@/lib/materials'
+import { glow, surfaceMaterial, toon } from '@/lib/materials'
 import { GROUND, PALETTE } from '@/lib/scene-config'
 import { InteractiveSign } from '../objects/InteractiveSign'
 import { day } from './WorldLighting'
@@ -75,19 +75,8 @@ function Boat() {
  */
 function Lighthouse() {
   const [x, z] = LANDMARKS.lighthouse
-  const lantern = useMemo(() => new THREE.MeshBasicMaterial({ color: PALETTE.red, toneMapped: false }), [])
-  const beamMat = useMemo(
-    () =>
-      new THREE.MeshBasicMaterial({
-        color: '#ffc9a8',
-        transparent: true,
-        opacity: 0,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
-        side: THREE.DoubleSide,
-      }),
-    [],
-  )
+  const lantern = useMemo(() => glow(PALETTE.red), [])
+  const beamMat = useMemo(() => glow('#ffc9a8', 1, { additive: true }), [])
   const beam = useRef<THREE.Group>(null)
   const light = useRef<THREE.PointLight>(null)
   const low = useMemo(() => new THREE.Color('#5a1d16'), [])
@@ -95,7 +84,7 @@ function Lighthouse() {
   useFrame(({ clock }, dt) => {
     const t = clock.elapsedTime % 3.2
     const pulse = experience.reducedMotion ? 1 : t < 1.1 ? Math.sin((t / 1.1) * Math.PI) : 0
-    lantern.color.lerpColors(low, high, 0.35 + 0.65 * pulse)
+    lantern.emissive.lerpColors(low, high, 0.35 + 0.65 * pulse)
     beamMat.opacity = 0.05 + 0.16 * day.t
     if (beam.current && !experience.reducedMotion) beam.current.rotation.y += dt * 0.5
     if (light.current) light.current.intensity = (4 + 22 * day.t) * (0.4 + 0.6 * pulse)

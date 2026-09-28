@@ -4,6 +4,8 @@
  * quay in the north (−z), where the sun sets at the end of the route.
  */
 
+import { DA, derived } from './da'
+
 export type ZoneId = 'arrival' | 'studio' | 'attention' | 'community' | 'system' | 'contact'
 
 export type Zone = {
@@ -43,33 +45,35 @@ export const GROUND = {
 }
 
 /**
- * Palette. Soft and natural, never childish; one accent only: the signal red
- * of the lighthouse lantern.
+ * The scene's colours, by role. They all come from the official palette in
+ * lib/da.ts (directly, or derived from it); the lighthouse's signal red is
+ * the one accent outside it.
  */
+const D = derived()
 export const PALETTE = {
-  sand: '#efe4cf',
-  sandDeep: '#e2cfa8',
-  path: '#e6d3ab',
-  grass: '#a9b98a',
-  grassDeep: '#8fa872',
-  leaf: '#8fae74',
-  leafLight: '#b5c792',
-  leafDeep: '#6f9460',
-  trunk: '#9a7353',
-  lagoon: '#8fc3b8',
-  lagoonDeep: '#5f9ea3',
-  wall: '#f6efe2',
-  wallWarm: '#f1e2cc',
-  roof: '#d98a64',
-  roofSage: '#9fb18a',
-  roofTeal: '#7fb2aa',
-  roofSand: '#e0b67d',
-  wood: '#b98a5e',
-  woodDark: '#8c6647',
-  stone: '#cfc6b6',
-  ink: '#2c2a33',
-  cloud: '#fffaf1',
-  lamp: '#ffd9a0',
+  sand: DA.cliff,
+  sandDeep: D.woodDark,
+  path: DA.path,
+  grass: DA.grass,
+  grassDeep: D.grassDeep,
+  leaf: DA.foliage,
+  leafLight: D.foliageLight,
+  leafDeep: D.foliageDeep,
+  trunk: DA.trunk,
+  lagoon: DA.sea,
+  lagoonDeep: DA.sea,
+  wall: D.wall,
+  wallWarm: D.wallWarm,
+  roof: DA.roofs,
+  roofSage: D.roofSage,
+  roofTeal: D.roofTeal,
+  roofSand: D.roofSand,
+  wood: D.wood,
+  woodDark: D.woodDark,
+  stone: D.stone,
+  ink: D.ink,
+  cloud: D.cloud,
+  lamp: D.lamp,
   red: '#e0301e',
 }
 

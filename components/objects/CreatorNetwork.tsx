@@ -3,6 +3,7 @@
 import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import { glow, toon } from '@/lib/materials'
 import { experience } from '@/lib/experience-store'
 import { PALETTE } from '@/lib/scene-config'
 import { day } from '../world/WorldLighting'
@@ -41,8 +42,8 @@ export function CreatorNetwork({
       }),
     [hub, ends],
   )
-  const wireMat = useMemo(() => new THREE.MeshBasicMaterial({ color: PALETTE.ink, transparent: true, opacity: 0.55 }), [])
-  const bulbMat = useMemo(() => new THREE.MeshBasicMaterial({ color: PALETTE.lamp, toneMapped: false }), [])
+  const wireMat = toon(PALETTE.woodDark)
+  const bulbMat = useMemo(() => glow(PALETTE.lamp), [])
   const bulbs = useRef<THREE.InstancedMesh>(null)
   const bulbGeo = useMemo(() => new THREE.SphereGeometry(0.11, 10, 8), [])
   const tmp = useMemo(() => ({ m: new THREE.Matrix4(), p: new THREE.Vector3(), s: new THREE.Vector3(), q: new THREE.Quaternion() }), [])
@@ -68,7 +69,7 @@ export function CreatorNetwork({
     })
     if (bulbs.current) bulbs.current.instanceMatrix.needsUpdate = true
     // brighter as the light goes down
-    bulbMat.color.lerpColors(lampDim, lampBright, day.t)
+    bulbMat.emissive.lerpColors(lampDim, lampBright, day.t)
   })
 
   return (
