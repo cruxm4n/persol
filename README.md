@@ -16,7 +16,7 @@ Chaque chapitre du parcours est un lieu du monde 3D.
 
 ## Stack
 
-Vite · React 19 · TypeScript · Three.js · React Three Fiber · drei · postprocessing · Lenis.
+Vite · React 19 · TypeScript · Three.js · React Three Fiber · drei · Lenis.
 
 ```bash
 npm install

@@ -6,6 +6,8 @@ let lenis: Lenis | null = null
 
 /** Viewport-centre position of each chapter's centre, in document px. */
 let centres: number[] = []
+/** Same, for each row of the brand index. */
+let brandRows: number[] = []
 
 function measure() {
   const els = Array.from(document.querySelectorAll<HTMLElement>('[data-chapter]'))
@@ -13,25 +15,30 @@ function measure() {
     const r = el.getBoundingClientRect()
     return r.top + window.scrollY + r.height / 2
   })
+  brandRows = Array.from(document.querySelectorAll<HTMLElement>('[data-brand-row]')).map((el) => {
+    const r = el.getBoundingClientRect()
+    return r.top + window.scrollY + r.height / 2
+  })
 }
 
-function chapterAt(scrollY: number) {
-  if (!centres.length) return 0
+/** Fractional index of the row at the viewport centre (piecewise linear). */
+function indexAt(list: number[], scrollY: number) {
+  if (!list.length) return 0
   const probe = scrollY + window.innerHeight / 2
-  if (probe <= centres[0]) return 0
-  const last = centres.length - 1
-  if (probe >= centres[last]) return last
+  if (probe <= list[0]) return 0
+  const last = list.length - 1
+  if (probe >= list[last]) return last
   for (let i = 0; i < last; i++) {
-    const a = centres[i]
-    const b = centres[i + 1]
-    if (probe >= a && probe <= b) return i + (probe - a) / (b - a)
+    if (probe >= list[i] && probe <= list[i + 1]) return i + (probe - list[i]) / (list[i + 1] - list[i])
   }
   return last
 }
 
 function update(scrollY: number) {
-  flight.chapter = chapterAt(scrollY)
-  setUi({ active: Math.round(flight.chapter) })
+  flight.chapter = indexAt(centres, scrollY)
+  flight.brand = indexAt(brandRows, scrollY)
+  const inBrands = Math.abs(flight.chapter - 2) < 0.6
+  setUi({ active: Math.round(flight.chapter), currentBrand: inBrands ? Math.round(flight.brand) : -1 })
   if (flight.chapter > 0.15) setUi({ started: true })
 }
 

@@ -1,11 +1,12 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import {
+  brandOrder,
   brandSectors,
-  brands,
   brandsNote,
   chapters,
   contact,
   expertises,
+  hero,
   identity,
   journey,
   profile,
@@ -49,30 +50,23 @@ function Chapter({
 }
 
 function Intro() {
-  const started = useUi((s) => s.started)
   return (
-    <section id="lancement" data-chapter={0} className="chapter chapter--intro is-active" aria-labelledby="lancement-title">
-      <div className="panel panel--intro">
-        <p className="kicker">
-          <span className="kicker-code">00</span>
-          <span className="kicker-rule" />
-          <span>Mission · depuis {identity.since}</span>
-        </p>
-        <h1 id="lancement-title" className="display">
-          Louis <em>R.</em>
-        </h1>
-        <p className="role">{identity.role}</p>
-        <p className="lead">{identity.tagline}</p>
-        <div className="intro-actions">
-          <button type="button" className="launch" onClick={() => scrollToChapter(1)}>
-            <span className="launch-ring" aria-hidden="true" />
-            <span>{started ? 'Reprendre le vol' : 'Démarrer la mission'}</span>
-            <span className="launch-arrow" aria-hidden="true">
-              ↓
-            </span>
-          </button>
-          <span className="hint">ou faites défiler</span>
-        </div>
+    <section id="lancement" data-chapter={0} className="hero" aria-labelledby="lancement-title">
+      <p className="hero-role">
+        {identity.role}
+        <span className="hero-since">depuis {identity.since}</span>
+      </p>
+      <h1 id="lancement-title" className="hero-name">
+        <span>Louis</span>
+        <span className="hero-initial">R.</span>
+      </h1>
+      <p className="hero-lede">{hero.lede}</p>
+      <p className="hero-brands">{hero.brands}</p>
+      <div className="hero-foot">
+        {identity.available && <p>Disponible pour de nouvelles missions.</p>}
+        <a href="#profil" onClick={(e) => (e.preventDefault(), scrollToChapter(1))}>
+          Suivre la ligne depuis {identity.since}
+        </a>
       </div>
     </section>
   )
@@ -97,34 +91,39 @@ function Profile() {
 
 function Brands() {
   const hover = useUi((s) => s.hoverBrand)
+  const current = useUi((s) => s.currentBrand)
+  const sectorLabel = (id: string) => brandSectors.find((s) => s.id === id)?.label ?? ''
   return (
-    <Chapter index={2} tall>
-      <h2 id="marques-title" className="title">
-        Ils m'ont fait confiance.
-      </h2>
-      <p className="body">{brandsNote} Chaque station survolée est une marque accompagnée.</p>
-      <div className="brand-index">
-        {brandSectors.map((sector) => (
-          <div key={sector.id} className="brand-sector">
-            <h3 className="meta">{sector.label}</h3>
-            <ul>
-              {brands
-                .filter((b) => b.sector === sector.id)
-                .map((b) => (
-                  <li
-                    key={b.name}
-                    className={hover === b.name ? 'is-hot' : ''}
-                    onPointerEnter={() => setUi({ hoverBrand: b.name })}
-                    onPointerLeave={() => setUi({ hoverBrand: null })}
-                  >
-                    {b.name}
-                  </li>
-                ))}
-            </ul>
-          </div>
-        ))}
+    <section id="marques" data-chapter={2} className="brands" aria-labelledby="marques-title">
+      <div className="brands-head">
+        <h2 id="marques-title" className="brands-count">
+          {brandOrder.length}
+          <span>marques</span>
+        </h2>
+        <p className="brands-text">{brandsNote}</p>
+        <p className="brands-note">
+          Classées par ordre alphabétique. Sur la ligne, leur position n'est pas une date.
+        </p>
       </div>
-    </Chapter>
+      <ol className="brand-index">
+        {brandOrder.map((b, i) => {
+          const on = hover ? hover === b.name : current === i
+          return (
+            <li
+              key={b.name}
+              data-brand-row={i}
+              className={on ? 'is-current' : ''}
+              onPointerEnter={() => setUi({ hoverBrand: b.name })}
+              onPointerLeave={() => setUi({ hoverBrand: null })}
+            >
+              <span className="brand-no">{String(i + 1).padStart(2, '0')}</span>
+              <span className="brand-name">{b.name}</span>
+              <span className="brand-sector">{sectorLabel(b.sector)}</span>
+            </li>
+          )
+        })}
+      </ol>
+    </section>
   )
 }
 

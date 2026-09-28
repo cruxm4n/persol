@@ -13,21 +13,23 @@ export const flight = {
   pointerX: 0,
   pointerY: 0,
   reducedMotion: false,
-  // telemetry, written by the camera rig
-  altitude: 0,
-  heading: 0,
-  speed: 0,
+  /** position of the camera along the career line, 0 (2018) to 1 (today) */
+  u: 0,
+  /** fractional row of the brand index at the viewport centre */
+  brand: 0,
+  brandSmooth: 0,
 }
 
 type UiState = {
   active: number
   focusProject: number | null
   hoverBrand: string | null
+  currentBrand: number
   started: boolean
   ready: boolean
 }
 
-let ui: UiState = { active: 0, focusProject: null, hoverBrand: null, started: false, ready: false }
+let ui: UiState = { active: 0, focusProject: null, hoverBrand: null, currentBrand: -1, started: false, ready: false }
 const listeners = new Set<() => void>()
 
 export function setUi(patch: Partial<UiState>) {

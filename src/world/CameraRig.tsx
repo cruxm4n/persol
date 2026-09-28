@@ -1,136 +1,146 @@
 import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo } from 'react'
 import * as THREE from 'three'
-import { flight, getUi } from '../store'
-import { NETWORK_EYE, MISSION_TARGET, MISSION_VIEW, SCREENS } from './anchors'
-import { heightAt } from './terrain'
+import { flight } from '../store'
+import { BRAND_SPAN, brandStakes, curve, future, sideAt } from './line'
 
-type V3 = readonly [number, number, number]
-type Key = [c: number, pos: V3, target: V3]
+/**
+ * The camera is always placed relative to the career line: `u` along it, then
+ * `back` / `side` / `h` in the line's own frame. Two chapters pull out to an
+ * overview pose instead (hero, parcours) so the whole line can be read.
+ */
+type Key = {
+  c: number
+  u: number
+  back?: number
+  side?: number
+  h?: number
+  ahead?: number
+  tside?: number
+  /** blend toward overview pose A (hero) / B (parcours) */
+  a?: number
+  b?: number
+}
 
-/** Flight plan: one pose per chapter (integers) plus in-between waypoints. */
-const PLAN: Key[] = [
-  [0, [0, 3.2, 17], [0, 1.6, 0]],
-  [0.5, [2, 10, -22], [4, 9, -70]],
-  [1, NETWORK_EYE, [-2.5, 10.5, -78]],
-  [1.5, [-3, 12, -104], [-3, 9, -140]],
-  [2, [-8, 8.8, -148], [-3, 8.5, -190]],
-  [2.5, [-5, 11, -212], [-6, 7, -250]],
-  [3, MISSION_VIEW.pos, MISSION_TARGET],
-  [3.5, [-18, 9, -290], [-3, 9, -330]],
-  [4, [-22, 4.2, -309], [-5, 13, -330]],
-  [5, [-24, 35, -308], [-3, 12, -334]],
-  [5.5, [-8, 40, -362], [0, 0, -398]],
-  [6, [-7, 36, -373], [1, 0, -404]],
-  [6.5, [-2, 27, -424], [6, 4, -470]],
-  [7, [-8, 21, -440], [4, 3, -478]],
-  [7.5, [-5, 12, -510], [-2, 5, -560]],
-  [8, [-6.5, 5, -531], [-6, 5.5, -560]],
+const OVERVIEW_A = { pos: new THREE.Vector3(-34, 34, 40), target: new THREE.Vector3(6, 0, -150) }
+const OVERVIEW_B = { pos: new THREE.Vector3(-92, 88, -130), target: new THREE.Vector3(8, 0, -230) }
+
+const hold = (c: number, k: Omit<Key, 'c'>, spread = 0.2): Key[] => [
+  { c: c - spread, ...k },
+  { c, ...k },
+  { c: c + spread, ...k },
 ]
 
-const P = PLAN.map((k) => new THREE.Vector3(...k[1]))
-const T = PLAN.map((k) => new THREE.Vector3(...k[2]))
+const PLAN: Key[] = [
+  { c: 0, u: 0, a: 1 },
+  { c: 0.2, u: 0, a: 1 },
+  ...hold(1, { u: 0.03, back: 12, side: -7, h: 4, ahead: 0.08, tside: -2 }),
+  { c: 1.62, u: 0.105, back: 18, side: 17, h: 8, ahead: 0.05, tside: 9 },
+  { c: 2.42, u: 0.6, back: 18, side: 17, h: 8, ahead: 0.05, tside: 9 },
+  ...hold(3, { u: 0.66, back: 13, side: -8, h: 5, ahead: 0.06, tside: -2 }),
+  ...hold(4, { u: 0.72, back: 13, side: -8, h: 5, ahead: 0.06, tside: -2 }),
+  ...hold(5, { u: 0.78, back: 13, side: -8, h: 6, ahead: 0.06, tside: -2 }),
+  ...hold(6, { u: 0.86, back: 13, side: -8, h: 6, ahead: 0.06, tside: -2 }),
+  ...hold(7, { u: 0.95, b: 1 }, 0.25),
+  { c: 7.8, u: 1, back: 11, side: -6, h: 3, ahead: 0.08, tside: -3 },
+  { c: 8, u: 1, back: 11, side: -6, h: 3, ahead: 0.08, tside: -3 },
+]
 
-function catmull(pts: THREE.Vector3[], i: number, t: number, out: THREE.Vector3) {
-  const p0 = pts[Math.max(0, i - 1)]
-  const p1 = pts[i]
-  const p2 = pts[Math.min(pts.length - 1, i + 1)]
-  const p3 = pts[Math.min(pts.length - 1, i + 2)]
-  const t2 = t * t
-  const t3 = t2 * t
-  for (const axis of ['x', 'y', 'z'] as const) {
-    out[axis] =
-      0.5 *
-      (2 * p1[axis] +
-        (-p0[axis] + p2[axis]) * t +
-        (2 * p0[axis] - 5 * p1[axis] + 4 * p2[axis] - p3[axis]) * t2 +
-        (-p0[axis] + 3 * p1[axis] - 3 * p2[axis] + p3[axis]) * t3)
-  }
+const DEFAULTS = { back: 12, side: -7, h: 4, ahead: 0.06, tside: -2, a: 0, b: 0 }
+const FIELDS = ['u', 'back', 'side', 'h', 'ahead', 'tside', 'a', 'b'] as const
+type Pose = Record<(typeof FIELDS)[number], number>
+
+function interpolate(c: number): Pose {
+  const last = PLAN.length - 1
+  let i = 0
+  while (i < last - 1 && c > PLAN[i + 1].c) i++
+  const k0 = { ...DEFAULTS, ...PLAN[i] }
+  const k1 = { ...DEFAULTS, ...PLAN[i + 1] }
+  const span = k1.c - k0.c
+  const raw = span > 0 ? THREE.MathUtils.clamp((c - k0.c) / span, 0, 1) : 0
+  const t = raw * raw * (3 - 2 * raw)
+  const out = {} as Pose
+  for (const f of FIELDS) out[f] = k0[f] + (k1[f] - k0[f]) * t
   return out
 }
 
-/** Slow down around each chapter so the camera "holds" while text is read. */
-function dwell(c: number) {
-  const i = Math.floor(c)
-  const f = c - i
-  return i + f - (Math.sin(2 * Math.PI * f) / (2 * Math.PI)) * 0.82
-}
-
-function sample(c: number, pos: THREE.Vector3, target: THREE.Vector3) {
-  const last = PLAN.length - 1
-  if (c >= PLAN[last][0]) {
-    pos.copy(P[last])
-    target.copy(T[last])
-    return
-  }
-  let i = 0
-  while (i < last - 1 && c > PLAN[i + 1][0]) i++
-  const span = PLAN[i + 1][0] - PLAN[i][0]
-  const t = THREE.MathUtils.clamp((c - PLAN[i][0]) / span, 0, 1)
-  catmull(P, i, t, pos)
-  catmull(T, i, t, target)
+/** Point on the line, continuing onto the dashed future past today. */
+function pointAt(u: number, out: THREE.Vector3) {
+  if (u <= 1) return out.copy(curve.getPointAt(Math.max(0, u)))
+  return out.copy(future.getPointAt(Math.min(1, (u - 1) / 0.12)))
 }
 
 export function CameraRig() {
   const { camera, size } = useThree()
   const tmp = useMemo(
     () => ({
+      p: new THREE.Vector3(),
+      s: new THREE.Vector3(),
+      tan: new THREE.Vector3(),
       pos: new THREE.Vector3(),
       target: new THREE.Vector3(),
-      look: new THREE.Vector3(0, 1.6, 0),
-      focus: new THREE.Vector3(),
-      right: new THREE.Vector3(),
-      prevX: 0,
-      bank: 0,
+      stake: new THREE.Vector3(),
+      stake2: new THREE.Vector3(),
+      bp: new THREE.Vector3(),
     }),
     [],
   )
 
   useEffect(() => {
     const cam = camera as THREE.PerspectiveCamera
-    cam.fov = size.width / size.height < 0.8 ? 64 : 48
+    cam.fov = size.width / size.height < 0.8 ? 62 : 42
     cam.updateProjectionMatrix()
   }, [camera, size])
 
-  useFrame(({ clock }, delta) => {
+  useFrame((_, delta) => {
     const dt = Math.min(delta, 0.05)
-    const prev = flight.smooth
-    flight.smooth = THREE.MathUtils.damp(flight.smooth, flight.chapter, flight.reducedMotion ? 20 : 3.2, dt)
-    flight.velocity = (flight.smooth - prev) / Math.max(dt, 1e-3)
+    flight.smooth = THREE.MathUtils.damp(flight.smooth, flight.chapter, flight.reducedMotion ? 30 : 3, dt)
+    const k = interpolate(flight.smooth)
+    // In the brand chapter the camera follows the index row being read.
+    const inBrands = THREE.MathUtils.smoothstep(flight.smooth, 1.5, 1.7) * (1 - THREE.MathUtils.smoothstep(flight.smooth, 2.3, 2.5))
+    flight.brandSmooth = THREE.MathUtils.damp(flight.brandSmooth, flight.brand, flight.reducedMotion ? 30 : 3, dt)
+    const last = brandStakes.length - 1
+    const bf = THREE.MathUtils.clamp(flight.brandSmooth, 0, last)
+    const uBrand = BRAND_SPAN[0] + (BRAND_SPAN[1] - BRAND_SPAN[0]) * (bf / last)
+    if (inBrands > 0) k.u = THREE.MathUtils.lerp(k.u, uBrand, inBrands)
+    flight.u = k.u
 
-    const c = dwell(flight.smooth)
-    sample(c, tmp.pos, tmp.target)
+    const u = THREE.MathUtils.clamp(k.u, 0, 1)
+    pointAt(u, tmp.p)
+    tmp.tan.copy(curve.getTangentAt(u))
+    sideAt(u, tmp.s)
+    tmp.pos
+      .copy(tmp.p)
+      .addScaledVector(tmp.tan, -k.back)
+      .addScaledVector(tmp.s, k.side)
+    tmp.pos.y += k.h
+    pointAt(k.u + k.ahead, tmp.target).addScaledVector(tmp.s, k.tside)
 
-    // Project focus: lean toward the selected screen.
-    const fp = getUi().focusProject
-    const nearProjects = Math.max(0, 1 - Math.abs(flight.smooth - 3) * 2)
-    if (fp !== null && nearProjects > 0) {
-      const s = SCREENS[fp]
-      tmp.focus.set(s.x, s.y + 3, s.z)
-      tmp.target.lerp(tmp.focus, 0.45 * nearProjects)
+    if (inBrands > 0) {
+      // look straight at the stake of the row being read, from above the line
+      const i0 = Math.floor(bf)
+      const i1 = Math.min(last, i0 + 1)
+      const a = brandStakes[i0]
+      const b = brandStakes[i1]
+      tmp.stake.set(a.base.x, a.top, a.base.z).lerp(tmp.stake2.set(b.base.x, b.top, b.base.z), bf - i0)
+      pointAt(uBrand, tmp.bp)
+      tmp.bp.addScaledVector(curve.getTangentAt(uBrand), -17)
+      tmp.bp.y += 8
+      tmp.pos.lerp(tmp.bp, inBrands)
+      tmp.stake.addScaledVector(sideAt(uBrand, tmp.s), 1.2)
+      tmp.target.lerp(tmp.stake, inBrands)
+    }
+    if (k.a > 0) {
+      tmp.pos.lerp(OVERVIEW_A.pos, k.a)
+      tmp.target.lerp(OVERVIEW_A.target, k.a)
+    }
+    if (k.b > 0) {
+      tmp.pos.lerp(OVERVIEW_B.pos, k.b)
+      tmp.target.lerp(OVERVIEW_B.target, k.b)
     }
 
-    // Drone feel: hover, pointer parallax, banking.
-    const t = clock.elapsedTime
-    const hover = flight.reducedMotion ? 0 : 1
-    tmp.right.subVectors(tmp.target, tmp.pos).cross(camera.up).normalize()
-    tmp.pos.addScaledVector(tmp.right, flight.pointerX * 0.9 * hover)
-    tmp.pos.y += (-flight.pointerY * 0.55 + Math.sin(t * 0.9) * 0.18) * hover
-    tmp.pos.x += Math.sin(t * 0.53) * 0.12 * hover
-
-    camera.position.lerp(tmp.pos, 1 - Math.exp(-dt * 6))
-    tmp.look.lerp(tmp.target, 1 - Math.exp(-dt * 6))
-    camera.lookAt(tmp.look)
-
-    const lateral = (camera.position.x - tmp.prevX) / Math.max(dt, 1e-3)
-    tmp.prevX = camera.position.x
-    tmp.bank = THREE.MathUtils.damp(tmp.bank, THREE.MathUtils.clamp(-lateral * 0.006, -0.08, 0.08), 3, dt)
-    camera.rotateZ(tmp.bank * hover)
-
-    flight.altitude = camera.position.y - heightAt(camera.position.x, camera.position.z)
-    tmp.right.subVectors(tmp.look, camera.position)
-    flight.heading = (THREE.MathUtils.radToDeg(Math.atan2(tmp.right.x, -tmp.right.z)) + 360) % 360
-    flight.speed = Math.abs(flight.velocity) * 60
+    camera.position.copy(tmp.pos)
+    camera.lookAt(tmp.target)
   })
 
   return null

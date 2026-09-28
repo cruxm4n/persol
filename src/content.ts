@@ -15,6 +15,12 @@ export const identity = {
   since: 2018,
 }
 
+/** Hero copy: only facts from the original site, stated plainly. */
+export const hero = {
+  lede: "Je conçois et pilote des campagnes d'influence, de social media et de publicité, de la stratégie jusqu'au reporting.",
+  brands: 'Pour ASUS ROG, Netflix, Red Bull, Samsung, Orange et neuf autres marques, en direct ou via agence.',
+}
+
 export const profile = {
   title: 'Relier une marque à ses audiences.',
   lead:
@@ -56,7 +62,10 @@ export const brands: Brand[] = [
   { name: 'Nike', sector: 'lifestyle' },
 ]
 
-export const brandsNote = 'Missions réalisées en direct ou via agence.'
+/** Alphabetical: the index makes no claim about when each mission happened. */
+export const brandOrder = [...brands].sort((a, b) => a.name.localeCompare(b.name, 'fr'))
+
+export const brandsNote = 'Accompagnées depuis 2018, en direct ou via agence.'
 
 export type Project = {
   id: string

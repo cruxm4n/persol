@@ -1,13 +1,7 @@
+/** Four colours, nothing else. Keep in sync with the CSS tokens. */
 export const COLORS = {
-  night: '#07080a',
-  ground: '#0b0d10',
-  contour: '#9aa3ad',
-  bone: '#ece8df',
-  steel: '#5c6570',
-  signal: '#ff5b14',
+  paper: '#e6e7e3',
+  ink: '#121212',
+  graphite: '#5f615c',
+  red: '#e0301e',
 }
-
-export const FOG_DENSITY = 0.0105
-
-/** HDR multiplier so emissive accents cross the bloom threshold. */
-export const GLOW = 3.2

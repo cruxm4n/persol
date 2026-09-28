@@ -1,9 +1,10 @@
 import { lazy, Suspense, useMemo } from 'react'
 import { Chapters } from './ui/Chapters'
-import { Hud } from './ui/Hud'
+import { Masthead } from './ui/Masthead'
 import { useScrollDriver } from './scroll'
 import { useUi } from './store'
 
+const LineFallback = lazy(() => import('./ui/LineFallback').then((m) => ({ default: m.LineFallback })))
 const World = lazy(() => import('./world/World').then((m) => ({ default: m.World })))
 
 function hasWebGL() {
@@ -15,24 +16,13 @@ function hasWebGL() {
   }
 }
 
-function Boot() {
-  const ready = useUi((s) => s.ready)
-  return (
-    <div className={`boot ${ready ? 'is-done' : ''}`} aria-hidden="true">
-      <div className="boot-inner">
-        <span className="boot-ring" />
-        <p>Calibrage des capteurs</p>
-      </div>
-    </div>
-  )
-}
-
 export default function App() {
   useScrollDriver()
+  const ready = useUi((s) => s.ready)
+  const active = useUi((s) => s.active)
   const { webgl, lite } = useMemo(() => {
     const small = window.matchMedia('(max-width: 760px), (pointer: coarse)').matches
-    const weak = (navigator.hardwareConcurrency ?? 8) <= 4
-    return { webgl: hasWebGL(), lite: small || weak }
+    return { webgl: hasWebGL(), lite: small }
   }, [])
 
   return (
@@ -41,17 +31,17 @@ export default function App() {
         Aller au contenu
       </a>
       {webgl ? (
-        <>
+        <div className={`stage ${ready ? 'is-ready' : ''} ${active === 2 ? 'is-under-index' : ''}`}>
           <Suspense fallback={null}>
             <World lite={lite} />
           </Suspense>
-          <Boot />
-        </>
+        </div>
       ) : (
-        <div className="world world--fallback" aria-hidden="true" />
+        <Suspense fallback={null}>
+          <LineFallback />
+        </Suspense>
       )}
-      <div className="scrim" aria-hidden="true" />
-      <Hud />
+      <Masthead />
       <Chapters />
     </>
   )
