@@ -31,6 +31,21 @@ export async function loadFonts() {
 export const MATERIALS = {
   oak: 'textures/oak.jpg',
   paper: 'textures/paper.jpg',
+  proof: 'textures/proof.jpg',
+  listing: 'textures/listing.jpg',
+  kraft: 'textures/kraft.jpg',
+}
+
+/** A loaded material photograph as a colour texture (null while missing). */
+export function photoTexture(img: HTMLImageElement | null, repeat: [number, number] = [1, 1]) {
+  if (!img) return null
+  const t = new THREE.Texture(img)
+  t.colorSpace = THREE.SRGBColorSpace
+  t.wrapS = t.wrapT = THREE.RepeatWrapping
+  t.repeat.set(...repeat)
+  t.anisotropy = 8
+  t.needsUpdate = true
+  return t
 }
 
 export function loadImage(url: string) {
@@ -100,8 +115,16 @@ export function posterTexture() {
 
   // the name, set big and tight, as posters are
   ctx.fillStyle = COLORS.ink
-  ctx.font = `400 620px ${FONTS.display}`
-  ctx.fillText('Louis R.', 72, 930)
+  // largest size at which the whole name, full stop included, fits the margins
+  let size = 620
+  ctx.font = `400 ${size}px ${FONTS.display}`
+  const room = W - 96 * 2
+  const width = ctx.measureText(identity.name).width
+  if (width > room) {
+    size = Math.floor((size * room) / width)
+    ctx.font = `400 ${size}px ${FONTS.display}`
+  }
+  ctx.fillText(identity.name, 88, 930)
 
   ctx.fillRect(96, 1130, W - 192, 3)
   ctx.font = `500 78px ${FONTS.sans}`
@@ -190,8 +213,8 @@ export function sheetTexture(paper?: HTMLImageElement | null) {
   // title block, bottom right of the sheet, as on any drawing
   const tw = 30 * PX
   const th = 12 * PX
-  const tx = sx(SHEET.cx + SHEET.w / 2 - 34)
-  const tz = sz(MODEL.plinth.d / 2 + 6)
+  const tx = sx(-MODEL.plinth.w / 2 + 14)
+  const tz = sz(MODEL.plinth.d / 2 + 2.4)
   ctx.lineWidth = 2
   ctx.strokeRect(tx, tz, tw, th)
   ctx.beginPath()

@@ -6,7 +6,7 @@ import * as THREE from 'three'
 import { experience } from '@/lib/experience-store'
 import { COLORS, MODEL, PANEL_Y } from '@/lib/scene-config'
 import type { Profile } from '@/lib/responsive-config'
-import { MATERIALS, SHEET, labelTexture, loadImage, posterTexture, sheetTexture, tableTexture } from '@/lib/textures'
+import { MATERIALS, SHEET, labelTexture, loadImage, photoTexture, posterTexture, sheetTexture, tableTexture } from '@/lib/textures'
 import { lights } from './intro'
 
 /**
@@ -22,6 +22,17 @@ const PANEL_BOTTOM = PANEL_Y - panel.h / 2
 const PANEL_TOP = PANEL_Y + panel.h / 2
 const LAMP_X = [-2.7, 0, 2.7]
 const LAMP_HEAD = (x: number) => new THREE.Vector3(x, PANEL_TOP + 0.55, 1.45)
+/** Light levels at full intensity (the intro animates 0 → 1 on each). */
+const KEY_INTENSITY = 4600
+const LAMP_INTENSITY = 26
+
+/** Brace from the back of the frame (top) to the plinth, 4.6 behind the post. */
+const BRACE = (() => {
+  const top = new THREE.Vector3(0, PANEL_Y + 0.6, -0.4)
+  const foot = new THREE.Vector3(0, TOP, -4.6)
+  const d = top.clone().sub(foot)
+  return { length: d.length(), angle: -Math.atan2(d.y, d.z), y: (top.y + foot.y) / 2, z: (top.z + foot.z) / 2 }
+})()
 
 function useMaterials() {
   return useMemo(
@@ -43,14 +54,17 @@ function Box({
   position,
   material,
   rotation,
+  shadow = true,
 }: {
   size: [number, number, number]
   position: [number, number, number]
-  material: THREE.Material
+  material: THREE.Material | THREE.Material[]
   rotation?: [number, number, number]
+  /** small parts right in front of the poster stay out of the key light's shadow map */
+  shadow?: boolean
 }) {
   return (
-    <mesh position={position} rotation={rotation} material={material} castShadow receiveShadow>
+    <mesh position={position} rotation={rotation} material={material} castShadow={shadow} receiveShadow>
       <boxGeometry args={size} />
     </mesh>
   )
@@ -109,9 +123,9 @@ function Billboard({ mats, poster, fake }: { mats: Mats; poster: THREE.Texture; 
         <planeGeometry args={[panel.w, panel.h]} />
       </mesh>
 
-      {/* bracing behind */}
+      {/* kicker braces behind, from the frame down to the plinth: never through the poster */}
       {[-2.6, 2.6].map((x) => (
-        <Box key={x} size={[0.1, 0.1, 5.2]} position={[x, PANEL_Y - 0.6, -0.4]} rotation={[0.9, 0, 0]} material={mats.metal} />
+        <Box key={x} size={[0.1, 0.1, BRACE.length]} position={[x, BRACE.y, BRACE.z]} rotation={[BRACE.angle, 0, 0]} material={mats.metal} />
       ))}
       <Box size={[panel.w - 0.6, 0.12, 0.12]} position={[0, PANEL_Y, -0.45]} material={mats.metal} />
 
@@ -127,8 +141,8 @@ function Billboard({ mats, poster, fake }: { mats: Mats; poster: THREE.Texture; 
         const head = LAMP_HEAD(x)
         return (
           <group key={x}>
-            <Box size={[0.05, 0.05, 1.4]} position={[x, PANEL_TOP + 0.35, 0.7]} rotation={[-0.15, 0, 0]} material={mats.metal} />
-            <mesh position={head} rotation={[-2.2, 0, 0]} material={mats.lampHead} castShadow>
+            <Box size={[0.05, 0.05, 1.4]} position={[x, PANEL_TOP + 0.35, 0.7]} rotation={[-0.15, 0, 0]} material={mats.metal} shadow={false} />
+            <mesh position={head} rotation={[-2.2, 0, 0]} material={mats.lampHead}>
               <cylinderGeometry args={[0.16, 0.26, 0.4, 20, 1, true]} />
             </mesh>
           </group>
@@ -170,12 +184,18 @@ const PROOFS: { w: number; h: number; x: number; z: number; r: number; y?: numbe
   { w: 3.6, h: 2.7, x: 1, z: -24, r: -0.5 },
 ]
 
-function Proofs({ mats }: { mats: Mats }) {
+function Proofs({ mats, proof, kraft }: { mats: Mats; proof: THREE.Texture | null; kraft: THREE.Texture | null }) {
+  // box faces: +x, -x, +y, -y, +z (the print), -z (the kraft back)
+  const faces = useMemo(() => {
+    const front = proof ? new THREE.MeshStandardMaterial({ map: proof, roughness: 0.9 }) : mats.foam
+    const back = kraft ? new THREE.MeshStandardMaterial({ map: kraft, roughness: 0.95 }) : mats.core
+    return [mats.core, mats.core, mats.core, mats.core, front, back]
+  }, [mats, proof, kraft])
   return (
     <group>
       {PROOFS.map((p, i) => (
         <group key={i} position={[p.x, 0, p.z]} rotation-y={p.r}>
-          <Box size={[p.w, p.h, 0.3]} position={[0, (p.y ?? 0) + p.h / 2 + 0.6, 0]} material={mats.foam} />
+          <Box size={[p.w, p.h, 0.3]} position={[0, (p.y ?? 0) + p.h / 2 + 0.6, 0]} material={faces} />
           <Box size={[p.w * 0.6, 0.6, 1.6]} position={[0, 0.3, 0]} material={mats.core} />
         </group>
       ))}
@@ -185,10 +205,19 @@ function Proofs({ mats }: { mats: Mats }) {
 
 export function Act01Signal({ profile }: { profile: Profile }) {
   const mats = useMaterials()
-  const [photos, setPhotos] = useState<{ oak: HTMLImageElement | null; paper: HTMLImageElement | null }>({ oak: null, paper: null })
+  const [photos, setPhotos] = useState<Record<'oak' | 'paper' | 'proof' | 'kraft', HTMLImageElement | null>>({
+    oak: null,
+    paper: null,
+    proof: null,
+    kraft: null,
+  })
   useEffect(() => {
-    Promise.all([loadImage(MATERIALS.oak), loadImage(MATERIALS.paper)]).then(([oak, paper]) => setPhotos({ oak, paper }))
+    Promise.all([loadImage(MATERIALS.oak), loadImage(MATERIALS.paper), loadImage(MATERIALS.proof), loadImage(MATERIALS.kraft)]).then(
+      ([oak, paper, proof, kraft]) => setPhotos({ oak, paper, proof, kraft }),
+    )
   }, [])
+  const proof = useMemo(() => photoTexture(photos.proof), [photos.proof])
+  const kraft = useMemo(() => photoTexture(photos.kraft), [photos.kraft])
   const tex = useMemo(() => ({ poster: posterTexture(), label: labelTexture() }), [])
   const sheet = useMemo(() => sheetTexture(photos.paper), [photos.paper])
   const table = useMemo(() => tableTexture(photos.oak), [photos.oak])
@@ -214,9 +243,9 @@ export function Act01Signal({ profile }: { profile: Profile }) {
   )
 
   useFrame(({ clock }) => {
-    if (key.current) key.current.intensity = 5200 * lights.key
+    if (key.current) key.current.intensity = KEY_INTENSITY * lights.key
     if (hemi.current) hemi.current.intensity = 0.05 + 0.35 * lights.ambient
-    spots.current.forEach((s, i) => s && (s.intensity = 16 * lights.lamps[i]))
+    spots.current.forEach((s, i) => s && (s.intensity = LAMP_INTENSITY * lights.lamps[i]))
     bulbs.forEach((m, i) => m.color.lerpColors(lampOff, lampOn, lights.lamps[i]))
     // a slow beacon: on for a breath, then low, like an aviation light
     const t = clock.elapsedTime % 2.6
@@ -244,7 +273,7 @@ export function Act01Signal({ profile }: { profile: Profile }) {
       <Billboard mats={mats} poster={tex.poster} fake={posterFake} />
       <Figure mats={mats} position={[1.8, TOP, 3.4]} rotation={Math.PI + 0.4} />
       <Figure mats={mats} position={[-6.2, TOP, 5.6]} rotation={Math.PI - 0.7} />
-      <Proofs mats={mats} />
+      <Proofs mats={mats} proof={proof} kraft={kraft} />
 
       {/* lamp bulbs and beacon: they are the light sources, so they are drawn unlit */}
       {LAMP_X.map((x, i) => {

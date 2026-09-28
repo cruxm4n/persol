@@ -1,6 +1,6 @@
 'use client'
 
-import type { CSSProperties } from 'react'
+import { Fragment, type CSSProperties } from 'react'
 
 /**
  * Words rise out of a mask, one after the other. The text is always in the
@@ -25,12 +25,15 @@ export function TextReveal({
   return (
     <Tag className={`reveal ${show ? 'is-shown' : ''} ${className}`} aria-label={text}>
       {words.map((w, i) => (
-        <span className="reveal-mask" key={i} aria-hidden="true">
-          <span className="reveal-word" style={{ '--d': `${delay + i * stagger}s` } as CSSProperties}>
-            {w}
+        // the space sits between the masks: inside an inline-block it would be trimmed
+        <Fragment key={i}>
+          <span className="reveal-mask" aria-hidden="true">
+            <span className="reveal-word" style={{ '--d': `${delay + i * stagger}s` } as CSSProperties}>
+              {w}
+            </span>
           </span>
-          {i < words.length - 1 ? ' ' : ''}
-        </span>
+          {i < words.length - 1 ? ' ' : null}
+        </Fragment>
       ))}
     </Tag>
   )

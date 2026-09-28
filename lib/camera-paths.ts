@@ -26,11 +26,11 @@ export const SIGNAL_PATH: CameraKey[] = [
   // step back: the billboard, its lamps, its catwalk
   { p: 0.26, pos: [9.5, Y + 3.6, 21], target: [0, Y - 1.4, 0], fov: 30, miniature: 0.35 },
   // the reveal: it stands on a plinth, on a drafting table, at 1:50
-  { p: 0.52, pos: [27, Y + 10, 36], target: [-1, 4.2, -2], fov: 28, miniature: 1 },
+  { p: 0.52, pos: [24, Y + 15, 41], target: [-1, 3, 1.5], fov: 28, miniature: 0.7 },
   // round the back, low: the next act is waiting in the dark
   { p: 0.78, pos: [-30, Y + 2.4, 17], target: [-3, 6, -16], fov: 30, miniature: 0.8 },
   // lean in towards it
-  { p: 1, pos: [-12, Y - 1, -8], target: [-6, 7, -34], fov: 34, miniature: 0.5 },
+  { p: 1, pos: [-14, Y + 0.5, -5], target: [-5, 6, -32], fov: 36, miniature: 0.5 },
 ]
 
 /** Where the camera starts before the opening sequence pulls it to the first key. */

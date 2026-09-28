@@ -26,6 +26,8 @@ const PROOFS: [number, number, number] = [-9, 10.6, -26]
 export function SignalOverlay() {
   const entered = useUi((s) => s.entered)
   const stage = useActStage(0, MARKS)
+  // the poster speaks alone while it fills the frame; the line follows the first step back
+  const stepped = useActStage(0, [0.07])
   const [lit, setLit] = useState(false)
 
   // the line arrives once the lamps have caught
@@ -37,10 +39,10 @@ export function SignalOverlay() {
   }, [entered])
 
   const campaigns = stats.find((s) => s.label === 'campagnes')
-  const title = lit && stage < 3
+  const title = lit && stepped >= 1 && stage < 3
   return (
     <div className="signal" aria-live="off">
-      <div className={`signal-title ${title ? 'is-shown' : ''}`}>
+      <div className={`signal-title ${title ? 'is-shown' : ''} ${lit && stage < 3 ? 'is-lit' : ''}`}>
         <EditorialLabel index="01">Signal</EditorialLabel>
         <h1 className="sr-only">
           {identity.name}, {identity.role}

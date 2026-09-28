@@ -5,6 +5,8 @@ const config: NextConfig = {
   output: 'export',
   images: { unoptimized: true },
   reactStrictMode: true,
+  // the dev badge sits on the act counter: keep the frame clean while reviewing
+  devIndicators: false,
   transpilePackages: ['three'],
 }
 
