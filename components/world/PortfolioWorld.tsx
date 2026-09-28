@@ -66,6 +66,8 @@ export default function PortfolioWorld({ profile }: { profile: Profile }) {
       onCreated={({ scene, gl }) => {
         scene.fog = new THREE.Fog(DAYLIGHT.morning.fog, 130, 330)
         gl.setClearColor(DAYLIGHT.morning.horizon)
+        // development only: lets `npm run shot -- --audit` inspect the live scene
+        if (process.env.NODE_ENV !== 'production') Object.assign(window, { __scene: scene, __gl: gl })
       }}
     >
       <Suspense fallback={null}>
