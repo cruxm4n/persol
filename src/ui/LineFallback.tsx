@@ -1,9 +1,9 @@
-import { stops } from '../lib/portfolio-data'
-import { STOP_U, curve, milestones, yearAt, years } from '../world/line'
+import { curve, milestones, yearAt, years } from '../world/line'
 
 /**
  * Static plan view of the career line, drawn from the same data, for browsers
- * without WebGL: years as graduations, the three stops as stations, today in red.
+ * without WebGL: years as graduations, today in red. The stops are left out on
+ * purpose: set against the years they would read as dates.
  */
 export function LineFallback() {
   const pts = curve.getSpacedPoints(200)
@@ -37,19 +37,6 @@ export function LineFallback() {
         {milestones.slice(1, -1).map((m) => {
           const p = curve.getPointAt(m.u)
           return <circle key={m.title} cx={X(p.z)} cy={Y(p.x)} r={3} className="fb-dot" />
-        })}
-        {stops.map((s, i) => {
-          const p = curve.getPointAt(STOP_U[i])
-          const x = X(p.z)
-          const y = Y(p.x)
-          return (
-            <g key={s.id}>
-              <rect x={x - 5} y={y - 5} width={10} height={10} className="fb-stop" />
-              <text x={x + 9} y={y - 9} className="fb-year">
-                {`${s.number} ${s.title}`}
-              </text>
-            </g>
-          )
         })}
         <circle cx={X(end.z)} cy={Y(end.x)} r={6} className="fb-now" />
       </svg>

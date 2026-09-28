@@ -68,7 +68,7 @@ export function BrandIndex() {
           <h2 id="index-title">
             Index <span className="index-total">{brands.length}</span>
           </h2>
-          <button type="button" className="index-close" onClick={() => setUi({ indexOpen: false })}>
+          <button type="button" className="index-close" autoFocus onClick={() => setUi({ indexOpen: false })}>
             Fermer
           </button>
           <p>Toutes les marques, rangées par projet. Une marque sans projet attend sa fiche : rien n'est classé au hasard.</p>

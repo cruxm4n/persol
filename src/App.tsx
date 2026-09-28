@@ -33,7 +33,7 @@ export default function App() {
         Aller au contenu
       </a>
       {webgl ? (
-        <div className={`stage ${ready ? 'is-ready' : ''} ${inStop ? 'is-under-text' : ''} ${active === 1 ? 'is-quiet' : ''}`}>
+        <div className={`stage ${ready ? 'is-ready' : ''} ${inStop ? 'is-under-text' : ''} ${active > 0 ? 'is-reading' : ''} ${active === 1 ? 'is-quiet' : ''}`}>
           <Suspense fallback={null}>
             <World lite={lite} />
           </Suspense>

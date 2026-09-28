@@ -51,5 +51,5 @@ Le reste du texte est dans `src/content.ts`. À compléter :
 
 - Tout le contenu est en HTML sémantique au-dessus du canvas (lisible, indexable, navigable au clavier).
 - `prefers-reduced-motion` : scroll natif, caméra sans amorti, pas d'animation CSS.
-- Sans WebGL, un plan statique de la ligne (années, stops, aujourd'hui) remplace la 3D.
+- Sans WebGL, un plan statique de la ligne (années, aujourd'hui) remplace la 3D.
 - Pas de post-traitement ; les scènes n'utilisent que des lignes, des plans et des instances.

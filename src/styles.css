@@ -149,9 +149,6 @@ button {
   fill: var(--paper);
   stroke: var(--ink);
 }
-.fb-stop {
-  fill: var(--ink);
-}
 .fb-now {
   fill: var(--red);
 }
@@ -1245,8 +1242,14 @@ img.wall-logo {
     line-height: 1.2;
   }
   /* on a phone the text sits over the scene: step the drawing back */
+  .stage.is-ready.is-reading {
+    opacity: 0.4;
+  }
   .stage.is-ready.is-under-text {
-    opacity: 0.3;
+    opacity: 0.2;
+  }
+  .stage.is-ready.is-quiet {
+    opacity: 0.12;
   }
   .wall,
   .profile,
