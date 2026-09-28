@@ -1,4 +1,4 @@
-import PortfolioExperience from '@/components/experience/PortfolioExperience'
+import PortfolioExperience from '@/components/PortfolioExperience'
 
 export default function Page() {
   return <PortfolioExperience />

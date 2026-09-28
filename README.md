@@ -1,51 +1,57 @@
-# Louis R. — portfolio « La Maquette »
+# Louis R. — portfolio « Île Signal »
 
-Portfolio scrollable en cinq actes. Le parcours est une maquette à l'échelle 1:50 posée sur une
-table à dessin, dans une pièce sombre ; le scroll est le seul moteur (pas de déplacement libre) :
-la caméra suit une trajectoire prédéfinie par acte.
+Portfolio scrollable : six chapitres défilent par-dessus une petite île en 3D (low-poly, lumière douce,
+du matin au coucher de soleil). Le scroll est le seul moteur : la caméra suit une trajectoire
+prédéfinie et rejoint le lieu de chaque chapitre. Rien à cliquer, pas de déplacement libre.
 
-| Acte | Nom | État |
-|------|-----|------|
-| 01 | Signal | En cours : panneau 4 × 3 miniature, allumage des lampes, recul qui révèle la maquette |
-| 02 | Attention | À construire (après validation de l'acte 01) |
-| 03 | Network | À construire |
-| 04 | System | À construire |
-| 05 | Contact | À construire |
+| # | Chapitre | Lieu de l'île | Chiffre intégré à la scène |
+|---|----------|---------------|----------------------------|
+| 01 | Accueil | ponton, phare, vue aérienne | — |
+| 02 | Expertise | studio | enseigne « 2018 · Années d'exp. » |
+| 03 | Chiffres clés | rue des affiches | affiches « +200 Campagnes », « +100 Budget géré » |
+| 04 | Références | village | banderole « +500 Clients » |
+| 05 | Stack technique | atelier | écrans des quatre modules |
+| 06 | Contact | quai au coucher de soleil | — |
 
-La version précédente (« La Ligne », Vite) est au commit `64e2aa3`.
+Structure reprise de la version « Mission » (commit `ecd30cb`), nouvelle direction artistique.
+Versions précédentes : « Mission » (`ecd30cb`), « La Ligne » (`64e2aa3`),
+« La Maquette » (branche `claude/beautiful-mayer-nbq5c8`).
 
 ## Stack
 
 Next.js 16 (export statique) · TypeScript · React Three Fiber · drei · postprocessing · GSAP · Lenis.
+Typographies : Fraunces (titres), Figtree (texte).
 
 ```bash
 npm install
-npm run assets   # télécharge les matières générées (Higgsfield) dans public/textures
-npm run dev      # http://localhost:3000
-NODE_ENV=production npm run build   # export statique dans out/
+npm run dev                          # http://localhost:3000
+NODE_ENV=production npm run build    # export statique dans out/
 ```
 
-Ajouter `?q=low` à l'URL force le profil léger (mobile / machine lente).
+`?q=low` force le profil léger (celui du mobile). Les écrans en portrait ont leur propre
+trajectoire de caméra.
 
 ## Structure
 
-- `components/experience/` : `PortfolioExperience` (orchestration), `Stage` (canvas, effets),
-  `ExperienceCamera` (trajectoire), `Act01Signal` (maquette), `intro.ts` (séquence d'ouverture).
-- `components/overlays/` : HUD, progression 01/05, archive des marques, textes de l'acte 01.
-- `components/ui/` : chargeur, curseur (repère de coupe), révélation de texte, annotations
-  épinglées à la maquette, bouton magnétique.
-- `lib/` : données (`portfolio-data.ts`, `content.ts`, `logos.ts`), `camera-paths.ts`,
-  `scene-config.ts`, `motion-config.ts`, `responsive-config.ts`, `textures.ts` (affiche, feuille,
-  étiquette dessinées au canvas), `scroll.ts`, `experience-store.ts`.
+- `components/PortfolioExperience.tsx` : orchestration (polices, chargeur, scroll, fallback sans WebGL).
+- `components/overlays/` : `Chapters` (le contenu, en HTML), `Hud` (nom, progression 01/06).
+- `components/world/` : `PortfolioWorld` (canvas, effets), `WorldLighting` (cycle du jour),
+  `WorldEnvironment` (ciel, mer, île, chemin, végétation, nuages, oiseaux) et un composant par lieu.
+- `components/objects/` : maison, arbres instanciés, affiches, guirlandes, modules, panneau.
+- `components/camera/` : `ScrollCamera`, échantillonnage des trajectoires, réveil des lieux.
+- `lib/` : `portfolio-data.ts` (tout le texte), `scene-config.ts` (zones, palette, lumière),
+  `camera-paths.ts`, `island.ts` (contour, chemin, placement), `materials.ts`, `signage.ts`
+  (chiffres peints dans la scène), `asset-manifest.ts`.
 
-## Assets
+## Contenu
 
-`assets/manifest.json` liste les matières générées avec Higgsfield (bois, papier, épreuve
-d'imprimerie, papier listing, kraft) : URL, usage, acte. `npm run assets` les convertit en JPEG
-dans `public/textures/`. Sans ces fichiers, le site utilise des matières procédurales.
+Tout vient de louisr.lovable.app (textes et base publique qu'il lit), mot pour mot. Rien n'est inventé :
+les « Projets & Réalisations » du site source sont des fiches de test et ne sont pas affichés ;
+l'e-mail et le LinkedIn sont des valeurs provisoires et restent « À compléter »
+(`SHOW_GAPS` dans `lib/portfolio-data.ts`). À fournir : e-mail, LinkedIn, unité du « +100 Budget géré ».
 
-## Contenu à compléter
+## Images
 
-Rien n'est inventé : les champs inconnus restent vides (`SHOW_GAPS` dans `lib/portfolio-data.ts`).
-À fournir : liens marque → projet → année, résultats, visuels, unité du « +100 budget géré »,
-e-mail et LinkedIn.
+`public/assets/manifest.json` liste les images générées (skill image-use) avec leur prompt et leur rôle :
+cinq matières (herbe, sable, planches, tuiles, papier listing), trois affiches abstraites, une illustration
+de l'île. Sans ces fichiers, les surfaces peintes dans le code et les placeholders prennent le relais.

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" role="img" aria-label="Visuel du projet à venir">
+  <rect width="480" height="300" fill="#f1e2cc"/>
+  <rect x="18" y="18" width="444" height="264" fill="none" stroke="#2c2a33" stroke-opacity=".25" stroke-width="1.5"/>
+  <path d="M18 18 462 282M462 18 18 282" stroke="#2c2a33" stroke-opacity=".12"/>
+  <rect x="166" y="136" width="148" height="28" fill="#f1e2cc"/>
+  <text x="240" y="155" text-anchor="middle" font-family="Figtree, Arial, sans-serif" font-size="14" fill="#2c2a33" fill-opacity=".62">Visuel à venir</text>
+</svg>

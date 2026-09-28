@@ -1,59 +1,58 @@
-import * as THREE from 'three'
-import { easeInOut } from './motion-config'
-import { PANEL_Y } from './scene-config'
-
 /**
- * Camera paths are authored as keys along an act's progress. Between two keys
- * the camera travels on a Catmull-Rom spline (no corners), and the local time
- * is eased so it leaves slowly and lands softly on every key: each key is a
- * composed frame the reader can rest on.
+ * The walk, as camera keys along the route's progress (0..1).
+ *
+ * Every place has two keys close together, an arrival and a departure: the
+ * camera eases into the first, drifts slowly to the second while the words
+ * are read, then leaves faster for the next place. Coordinates follow the
+ * island layout in scene-config.ts.
+ *
+ * Portrait screens walk their own path: closer, centred on each place, wider
+ * lens, because the frame is narrow and tall.
  */
 export type CameraKey = {
   p: number
   pos: [number, number, number]
   target: [number, number, number]
   fov: number
-  /** tilt-shift strength at this key: 0 sharp, 1 strong miniature effect */
-  miniature: number
+  /** depth-of-field (tilt-shift) strength: 0 none, 1 miniature */
+  blur: number
 }
 
-const Y = PANEL_Y
-
-/** Act 01 — Signal: from the poster, back to the model, round it, towards Act 02. */
-export const SIGNAL_PATH: CameraKey[] = [
-  // the poster fills the frame: nothing tells yet that it is small
-  { p: 0, pos: [0.5, Y + 0.25, 11.4], target: [0.3, Y, 0], fov: 30, miniature: 0 },
-  // step back: the billboard, its lamps, its catwalk
-  { p: 0.26, pos: [9.5, Y + 3.6, 21], target: [0, Y - 1.4, 0], fov: 30, miniature: 0.35 },
-  // the reveal: it stands on a plinth, on a drafting table, at 1:50
-  { p: 0.52, pos: [24, Y + 15, 41], target: [-1, 3, 1.5], fov: 28, miniature: 0.7 },
-  // round the back, low: the next act is waiting in the dark
-  { p: 0.78, pos: [-30, Y + 2.4, 17], target: [-3, 6, -16], fov: 30, miniature: 0.8 },
-  // lean in towards it
-  { p: 1, pos: [-14, Y + 0.5, -5], target: [-5, 6, -32], fov: 36, miniature: 0.5 },
+export const DESKTOP_PATH: CameraKey[] = [
+  // arrival: from high over the sea, the whole island in morning light
+  { p: 0, pos: [10, 46, 84], target: [0, 0, -2], fov: 32, blur: 0.9 },
+  // down to the dock, the boat and the lighthouse
+  { p: 0.075, pos: [17, 9.5, 48], target: [3, 2, 26], fov: 36, blur: 0.3 },
+  { p: 0.11, pos: [15, 9, 45.5], target: [1.5, 2, 24.5], fov: 36, blur: 0.3 },
+  // the studio, its sign: 2018
+  { p: 0.17, pos: [0.5, 5.2, 24], target: [-11, 2.6, 11.5], fov: 36, blur: 0.25 },
+  { p: 0.255, pos: [-1.5, 4.8, 22], target: [-11.5, 2.4, 11], fov: 36, blur: 0.25 },
+  // the poster street: +200 campaigns, +100 budget
+  { p: 0.33, pos: [-3, 6, 13], target: [9.5, 2.6, 1.5], fov: 38, blur: 0.25 },
+  { p: 0.43, pos: [-3.5, 5.6, 10], target: [9.5, 2.5, 0], fov: 38, blur: 0.25 },
+  // the village, seen from above so the network reads: +500 clients
+  { p: 0.51, pos: [5, 15, 2], target: [-10, 1, -11], fov: 38, blur: 0.45 },
+  { p: 0.61, pos: [4, 14, -1], target: [-10.5, 1, -12], fov: 38, blur: 0.45 },
+  // the workshop: the stack
+  { p: 0.69, pos: [-2, 7.5, -6], target: [8.5, 2.2, -18], fov: 38, blur: 0.3 },
+  { p: 0.79, pos: [-2.5, 7, -9.5], target: [8.5, 2, -19], fov: 38, blur: 0.3 },
+  // on to the quay, the sun going down
+  { p: 0.88, pos: [-4, 4.2, -22], target: [0, 2, -32], fov: 40, blur: 0.2 },
+  { p: 1, pos: [0.5, 3.2, -25], target: [0, 4.2, -80], fov: 42, blur: 0.15 },
 ]
 
-/** Where the camera starts before the opening sequence pulls it to the first key. */
-export const SIGNAL_INTRO = { pos: [0.2, Y + 0.1, 8.4] as [number, number, number] }
-
-export type CameraSample = { pos: THREE.Vector3; target: THREE.Vector3; fov: number; miniature: number }
-
-export function makeSampler(keys: CameraKey[]) {
-  const pos = new THREE.CatmullRomCurve3(keys.map((k) => new THREE.Vector3(...k.pos)), false, 'centripetal')
-  const tgt = new THREE.CatmullRomCurve3(keys.map((k) => new THREE.Vector3(...k.target)), false, 'centripetal')
-  const n = keys.length - 1
-
-  return (p: number, out: CameraSample) => {
-    let i = 0
-    while (i < n - 1 && p > keys[i + 1].p) i++
-    const a = keys[i]
-    const b = keys[i + 1]
-    const t = easeInOut(Math.min(1, Math.max(0, (p - a.p) / (b.p - a.p))))
-    const u = (i + t) / n
-    pos.getPoint(u, out.pos)
-    tgt.getPoint(u, out.target)
-    out.fov = a.fov + (b.fov - a.fov) * t
-    out.miniature = a.miniature + (b.miniature - a.miniature) * t
-    return out
-  }
-}
+export const PORTRAIT_PATH: CameraKey[] = [
+  { p: 0, pos: [6, 62, 70], target: [0, 0, -2], fov: 46, blur: 0.6 },
+  { p: 0.075, pos: [12, 10, 50], target: [3, 2, 26], fov: 54, blur: 0.2 },
+  { p: 0.11, pos: [11, 9.5, 47.5], target: [1.5, 2, 24.5], fov: 54, blur: 0.2 },
+  { p: 0.17, pos: [-5, 5.5, 23], target: [-11, 2.8, 11.5], fov: 56, blur: 0.2 },
+  { p: 0.255, pos: [-6, 5, 21], target: [-11.5, 2.6, 11], fov: 56, blur: 0.2 },
+  { p: 0.33, pos: [-1, 6.5, 10], target: [9.5, 2.8, 1.5], fov: 58, blur: 0.2 },
+  { p: 0.43, pos: [-1, 6, 8], target: [9.5, 2.6, 0], fov: 58, blur: 0.2 },
+  { p: 0.51, pos: [-3, 17, -1], target: [-10, 1, -11], fov: 56, blur: 0.3 },
+  { p: 0.61, pos: [-4, 16, -3], target: [-10.5, 1, -12], fov: 56, blur: 0.3 },
+  { p: 0.69, pos: [-1, 8, -7], target: [8.5, 2.2, -18], fov: 58, blur: 0.2 },
+  { p: 0.79, pos: [-1.5, 7.5, -10], target: [8.5, 2, -19], fov: 58, blur: 0.2 },
+  { p: 0.88, pos: [-2, 4.6, -21], target: [0, 2.2, -32], fov: 58, blur: 0.15 },
+  { p: 1, pos: [0.5, 3.4, -24], target: [0, 5, -80], fov: 60, blur: 0.1 },
+]

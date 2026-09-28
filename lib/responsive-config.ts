@@ -1,49 +1,47 @@
 /**
  * One quality profile per device class, decided once at start.
- * Mobile keeps the composition; it drops what costs and is least seen.
+ * Mobile is not the desktop shrunk: it walks its own, closer camera path
+ * through a lighter island (fewer trees, flowers, clouds; no post effects).
  */
 export type Profile = {
   mobile: boolean
+  /** portrait screens get their own camera path */
+  portrait: boolean
   dpr: [number, number]
-  /** soft (PCSS) shadows on the key light */
-  softShadows: boolean
+  shadows: boolean
   shadowMapSize: number
-  /** light the poster with real spotlights, or fake it with emissive */
-  spotLights: boolean
+  /** 0..1: how much small vegetation and detail is scattered */
+  density: number
   effects: 'full' | 'lite'
-  /** narrower screens need a wider lens to keep the same framing */
-  fovScale: number
 }
 
 export function getProfile(): Profile {
   if (typeof window === 'undefined') return desktop
+  const portrait = window.innerHeight > window.innerWidth
   // ?q=low forces the light profile (testing, or a slow machine)
-  if (new URLSearchParams(window.location.search).get('q') === 'low') return { ...mobile, fovScale: 1 }
+  if (new URLSearchParams(window.location.search).get('q') === 'low') return { ...mobile, portrait }
   const small = window.matchMedia('(max-width: 760px)').matches
   const coarse = window.matchMedia('(pointer: coarse)').matches
-  if (small || coarse) {
-    const portrait = window.innerHeight > window.innerWidth
-    return { ...mobile, fovScale: portrait ? 1.55 : 1.1 }
-  }
-  return desktop
+  if (small || coarse) return { ...mobile, portrait }
+  return { ...desktop, portrait }
 }
 
 const desktop: Profile = {
   mobile: false,
+  portrait: false,
   dpr: [1, 1.75],
-  softShadows: true,
+  shadows: true,
   shadowMapSize: 2048,
-  spotLights: true,
+  density: 1,
   effects: 'full',
-  fovScale: 1,
 }
 
 const mobile: Profile = {
   mobile: true,
+  portrait: true,
   dpr: [1, 1.5],
-  softShadows: false,
+  shadows: true,
   shadowMapSize: 1024,
-  spotLights: false,
+  density: 0.45,
   effects: 'lite',
-  fovScale: 1.5,
 }

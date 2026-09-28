@@ -1,41 +1,80 @@
 /**
- * The five acts of the route. Scroll is the only way forward: each act owns a
- * length of page (in viewport heights) and the camera follows a fixed path
- * through it.
+ * Île Signal: one small island, walked along a single path by scrolling.
+ * Units are metres. The island lies along z, the dock in the south (+z), the
+ * quay in the north (−z), where the sun sets at the end of the route.
  */
-export type ActId = 'signal' | 'attention' | 'network' | 'system' | 'contact'
 
-export const ACTS: { id: ActId; number: string; title: string; length: number }[] = [
-  { id: 'signal', number: '01', title: 'Signal', length: 3.2 },
-  { id: 'attention', number: '02', title: 'Attention', length: 1 },
-  { id: 'network', number: '03', title: 'Network', length: 1 },
-  { id: 'system', number: '04', title: 'System', length: 1 },
-  { id: 'contact', number: '05', title: 'Contact', length: 1 },
-]
+export type ZoneId = 'arrival' | 'studio' | 'attention' | 'community' | 'system' | 'contact'
 
-/**
- * The world is a scale model on a drafting table. One unit is one centimetre
- * of model; at 1:50 a real 4 × 3 m billboard is 8 × 6 units.
- */
-export const MODEL = {
-  scale: 50,
-  plinth: { w: 26, h: 1.2, d: 18 },
-  panel: { w: 8, h: 6, depth: 0.28, border: 0.14 },
-  post: { w: 0.42, h: 4.6 },
+export type Zone = {
+  id: ZoneId
+  number: string
+  title: string
+  /** share of the whole route, 0..1 */
+  range: [number, number]
+  /** while the camera holds on the place: when the text is on screen */
+  hold: [number, number]
+  /** centre of the place on the island */
+  at: [number, number, number]
 }
 
-/** Height of the panel's centre above the table. */
-export const PANEL_Y = MODEL.plinth.h + MODEL.post.h + MODEL.panel.h / 2
+export const ZONES: Zone[] = [
+  { id: 'arrival', number: '01', title: 'Accueil', range: [0, 0.13], hold: [0, 0.055], at: [2, 0, 24] },
+  { id: 'studio', number: '02', title: 'Expertise', range: [0.13, 0.29], hold: [0.16, 0.26], at: [-11, 0, 11] },
+  { id: 'attention', number: '03', title: 'Chiffres clés', range: [0.29, 0.47], hold: [0.32, 0.43], at: [10, 0, 1] },
+  { id: 'community', number: '04', title: 'Références', range: [0.47, 0.65], hold: [0.5, 0.61], at: [-10, 0, -11] },
+  { id: 'system', number: '05', title: 'Stack technique', range: [0.65, 0.83], hold: [0.68, 0.79], at: [9, 0, -18] },
+  { id: 'contact', number: '06', title: 'Contact', range: [0.83, 1], hold: [0.9, 1.01], at: [0, 0, -30] },
+]
 
-export const COLORS = {
-  night: '#141311',
-  paper: '#ece8e1',
-  sheet: '#d8d3c9',
-  foam: '#f1eee8',
-  core: '#e2ddd2',
-  metal: '#34332f',
-  graphite: '#8a867e',
-  ink: '#141414',
+export const zoneAt = (p: number) => {
+  for (let i = ZONES.length - 1; i >= 0; i--) if (p >= ZONES[i].range[0]) return i
+  return 0
+}
+
+/** Page length in viewport heights: the whole walk. */
+export const ROUTE_LENGTH = { desktop: 11, mobile: 13 }
+
+/** Heights of the island's layers. */
+export const GROUND = {
+  water: 0,
+  sand: 0.35,
+  grass: 0.85,
+}
+
+/**
+ * Palette. Soft and natural, never childish; one accent only: the signal red
+ * of the lighthouse lantern.
+ */
+export const PALETTE = {
+  sand: '#efe4cf',
+  sandDeep: '#e2cfa8',
+  path: '#e6d3ab',
+  grass: '#a9b98a',
+  grassDeep: '#8fa872',
+  leaf: '#8fae74',
+  leafLight: '#b5c792',
+  leafDeep: '#6f9460',
+  trunk: '#9a7353',
+  lagoon: '#8fc3b8',
+  lagoonDeep: '#5f9ea3',
+  wall: '#f6efe2',
+  wallWarm: '#f1e2cc',
+  roof: '#d98a64',
+  roofSage: '#9fb18a',
+  roofTeal: '#7fb2aa',
+  roofSand: '#e0b67d',
+  wood: '#b98a5e',
+  woodDark: '#8c6647',
+  stone: '#cfc6b6',
+  ink: '#2c2a33',
+  cloud: '#fffaf1',
+  lamp: '#ffd9a0',
   red: '#e0301e',
-  lamp: '#ffd9a8',
+}
+
+/** Sky and light from morning (0) to sunset (1). */
+export const DAYLIGHT = {
+  morning: { zenith: '#9cc9d6', horizon: '#f6e6cf', sun: '#fff1d6', sunIntensity: 2.6, hemi: 1.15, fog: '#e9e3d4' },
+  sunset: { zenith: '#6f7fa6', horizon: '#f5b98a', sun: '#ffb27a', sunIntensity: 1.9, hemi: 0.7, fog: '#e8b894' },
 }

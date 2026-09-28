@@ -1,244 +1,109 @@
 /**
- * Données du parcours : trois stops, leurs projets, les marques.
+ * Everything the portfolio says, in one place.
  *
- * Règle : rien n'est inventé. Le site d'origine ne relie aucune marque à un
- * projet, une année ou un résultat. Tant que ces liens ne sont pas renseignés :
- *  - les projets sont des « fiches types » (draft: true) décrivant un type de mission réel ;
- *  - les champs inconnus restent vides ;
- *  - les marques ont projectIds / stopIds vides et apparaissent « non attribuées » dans l'Index.
+ * Source: louisr.lovable.app and the public tables it reads (translations,
+ * clients, categories, stack_tools, site_settings), checked on 2026-09-28.
+ * Texts are the source's own, word for word.
  *
- * Pour attribuer une marque : ajoutez son id dans `brandIds` du projet concerné.
- * Brand.projectIds / stopIds sont calculés automatiquement à partir de là.
+ * Rule: nothing is invented. The source's « Projets & Réalisations » holds
+ * only test entries, so no project is shown; its e-mail and LinkedIn are
+ * placeholders, so they stay empty here (SHOW_GAPS decides how that reads).
  */
-
-export type Metric = {
-  value: string
-  label: string
-}
 
 export type Brand = {
   id: string
   name: string
-  /** Secteur, tel qu'indiqué sur le site d'origine */
+  /** sector, as filed in the source */
   category: string
-  logo?: string
-  url?: string
-  projectIds: string[]
-  stopIds: string[]
-}
-
-export type Project = {
-  id: string
-  /** « 02.1 » : numéro de stop + rang */
-  number: string
-  title: string
-  category: string
-  context: string
-  role: string[]
-  deliverables: string[]
-  brandIds: string[]
-  metrics?: Metric[]
-  image?: string
-  year?: string
-  link?: string
-  /** Fiche type : décrit un type de mission, pas encore une campagne précise */
-  draft?: boolean
-}
-
-export type Stop = {
-  id: string
-  number: string
-  title: string
-  subtitle: string
-  description: string
-  visualDirection: string
-  /** Légende de la scène 3D, affichée sous la fiche principale */
-  sceneNote?: string
-  /** Outils cités par le site d'origine, en métadonnée du stop */
-  tools?: string[]
-  /** Le premier projet est le projet principal ; 2 ou 3 secondaires maximum */
-  projects: Project[]
 }
 
 /**
- * Affiche « À compléter » à la place des champs vides.
- * Passez à false au lancement : les champs vides seront simplement masqués.
+ * Show « À compléter » where a field is empty. Set to false at launch:
+ * empty fields are then simply left out.
  */
 export const SHOW_GAPS = true
 
-const brandList: Omit<Brand, 'projectIds' | 'stopIds'>[] = [
-  { id: 'asus-rog', name: 'ASUS ROG', category: 'Tech & Gaming' },
-  { id: 'asus', name: 'ASUS', category: 'Tech & Gaming' },
-  { id: 'cooler-master', name: 'Cooler Master', category: 'Tech & Gaming' },
-  { id: 'lenovo', name: 'Lenovo', category: 'Tech & Gaming' },
-  { id: 'hp', name: 'HP', category: 'Tech & Gaming' },
-  { id: 'samsung', name: 'Samsung', category: 'Tech & Gaming' },
-  { id: 'xiaomi', name: 'Xiaomi', category: 'Tech & Gaming' },
-  { id: 'poco', name: 'POCO', category: 'Tech & Gaming' },
-  { id: 'nintendo', name: 'Nintendo', category: 'Tech & Gaming' },
-  { id: 'netflix', name: 'Netflix', category: 'Divertissement' },
-  { id: 'prime-video', name: 'Prime Video', category: 'Divertissement' },
-  { id: 'orange', name: 'Orange', category: 'Télécom' },
-  { id: 'red-bull', name: 'Red Bull', category: 'Sport & Lifestyle' },
-  { id: 'nike', name: 'Nike', category: 'Sport & Lifestyle' },
-]
+export const identity = {
+  name: 'Louis R.',
+  initials: 'LR',
+  role: 'Digital Marketing Manager',
+  available: true,
+  description:
+    'Spécialiste du marketing digital et de la stratégie numérique. Je transforme vos ambitions en campagnes performantes et mémorables.',
+}
 
-export const stops: Stop[] = [
+/** « Chiffres clés », with the source's own labels. */
+export const stats = {
+  campaigns: { value: '+200', label: 'Campagnes' },
+  clients: { value: '+500', label: 'Clients' },
+  // TODO : unité du budget géré (ex. « +100 k€ ») — absente de la source
+  budget: { value: '+100', label: 'Budget géré' },
+  since: { value: '2018', label: 'Années d’exp.' },
+}
+
+/** « Expertise » */
+export const expertises = [
   {
-    id: 'brand-attention',
-    number: '02',
-    title: 'Attention',
-    subtitle: 'Faire exister une marque',
-    description:
-      "Des contenus, des campagnes et des lancements conçus pour qu'une marque soit vue, comprise et retenue.",
-    visualDirection: 'Planches accrochées le long de la ligne ; travelling latéral, arrêts nets.',
-    sceneNote: 'Les planches attendent leurs visuels : captures, photos, extraits de campagne.',
-    projects: [
-      {
-        id: 'lancement',
-        number: '02.1',
-        title: 'Lancer un produit sur les plateformes sociales',
-        category: 'Lancement',
-        context: '',
-        role: ['Direction créative', 'Production de contenus'],
-        deliverables: [],
-        brandIds: [],
-        draft: true,
-      },
-      {
-        id: 'campagne-contenus',
-        number: '02.2',
-        title: 'Une campagne de contenus de marque',
-        category: 'Brand content',
-        context: '',
-        role: ['Direction créative', 'Production'],
-        deliverables: [],
-        brandIds: [],
-        draft: true,
-      },
-      {
-        id: 'activation',
-        number: '02.3',
-        title: 'Une activation de marque',
-        category: 'Activation',
-        context: '',
-        role: [],
-        deliverables: [],
-        brandIds: [],
-        draft: true,
-      },
-    ],
+    id: 'influence',
+    title: 'Influence Marketing Manager',
+    text: "Stratégie et activation de campagnes avec des créateurs de contenu pour maximiser l'engagement et la notoriété de marque.",
   },
   {
-    id: 'community-engine',
-    number: '03',
-    title: 'Network',
-    subtitle: "Faire porter la marque par d'autres voix",
-    description:
-      "Des campagnes menées avec des créateurs de contenu, pour l'engagement et la notoriété de marque. Une marque, plusieurs profils, des communautés qui se répondent.",
-    visualDirection: 'Réseau marque → profils → communautés qui se trace au scroll ; trajectoire courbe.',
-    sceneNote: 'Schéma : les points figurent des rôles, pas des comptes réels.',
-    projects: [
-      {
-        id: 'reseau-createurs',
-        number: '03.1',
-        title: "Un réseau de créateurs autour d'une marque",
-        category: 'Influence',
-        context: '',
-        role: ['Stratégie', 'Activation des créateurs', 'Coordination', 'Reporting'],
-        deliverables: [],
-        brandIds: [],
-        draft: true,
-      },
-      {
-        id: 'social-communautes',
-        number: '03.2',
-        title: 'Animer une communauté sur les réseaux sociaux',
-        category: 'Social media',
-        context: '',
-        role: [],
-        deliverables: [],
-        brandIds: [],
-        draft: true,
-      },
-      {
-        id: 'activation-audience',
-        number: '03.3',
-        title: 'Activer une audience autour d’un temps fort',
-        category: 'Activation',
-        context: '',
-        role: [],
-        deliverables: [],
-        brandIds: [],
-        draft: true,
-      },
-    ],
+    id: 'digital',
+    title: 'Digital Marketing',
+    text: 'Pilotage de campagnes multi-canal (SEO, SEA, Social Ads) avec un focus ROI et acquisition mesurable.',
   },
   {
-    id: 'future-systems',
-    number: '04',
-    title: 'System',
-    subtitle: 'Aller plus vite sans perdre la main',
-    description:
-      'Automatiser ce qui se répète pour garder le temps pour ce qui compte : IA, workflows, données.',
-    visualDirection: 'Workflow en vue éclatée ; passage en axonométrie, rotations par quarts de tour.',
-    sceneNote: 'Schéma : les étapes d\u2019un workflow type, pas un outil précis.',
-    // stack « Dev & Automation » et « Analytics » du site d'origine
-    tools: ['Zapier', 'Make', 'Looker Studio', 'Google Analytics', 'Tag Manager', 'HTML/CSS', 'JavaScript'],
-    projects: [
-      {
-        id: 'workflow-ia',
-        number: '04.1',
-        title: 'Un workflow de production accéléré par l’IA',
-        category: 'IA & automatisation',
-        context: '',
-        role: [],
-        deliverables: [],
-        brandIds: [],
-        draft: true,
-      },
-      {
-        id: 'reporting-auto',
-        number: '04.2',
-        title: 'Un reporting de campagne automatisé',
-        category: 'Données',
-        context: '',
-        role: [],
-        deliverables: [],
-        brandIds: [],
-        draft: true,
-      },
-    ],
+    id: 'project',
+    title: 'Project Management',
+    text: "Coordination d'équipes et gestion de projets complexes de la stratégie à l'exécution et au reporting.",
+  },
+  {
+    id: 'content',
+    title: 'Content & Production Management',
+    text: 'Direction créative et production de contenus engageants pour plateformes sociales et campagnes digitales.',
   },
 ]
 
-export const projects: Project[] = stops.flatMap((s) => s.projects)
+/** « Ils m'ont fait confiance » */
+export const clientsSection = {
+  title: 'Ils m’ont fait confiance',
+  note: 'Missions réalisées en direct ou via agence',
+}
 
-export const stopOf = (projectId: string) => stops.find((s) => s.projects.some((p) => p.id === projectId))
+export const brands: Brand[] = [
+  { id: 'orange', name: 'Orange', category: 'Télécom / Tech' },
+  { id: 'samsung', name: 'Samsung', category: 'Télécom / Tech' },
+  { id: 'asus', name: 'Asus', category: 'Télécom / Tech' },
+  { id: 'lenovo', name: 'Lenovo', category: 'Télécom / Tech' },
+  { id: 'hp', name: 'HP', category: 'Télécom / Tech' },
+  { id: 'xiaomi', name: 'Xiaomi', category: 'Télécom / Tech' },
+  { id: 'poco', name: 'Poco', category: 'Télécom / Tech' },
+  { id: 'asus-rog', name: 'ASUS ROG', category: 'Gaming' },
+  { id: 'cooler-master', name: 'Cooler Master', category: 'Gaming' },
+  { id: 'omen', name: 'OMEN by HP', category: 'Gaming' },
+  { id: 'nintendo', name: 'Nintendo', category: 'Gaming' },
+  { id: 'netflix', name: 'Netflix', category: 'Streaming' },
+  { id: 'prime-video', name: 'Prime Video', category: 'Streaming' },
+  { id: 'red-bull', name: 'Red Bull', category: 'Food & Beverage' },
+  { id: 'nike', name: 'Nike', category: 'Lifestyle' },
+]
 
-/** Brands with their links derived from the projects that cite them. */
-export const brands: Brand[] = brandList.map((b) => {
-  const linked = projects.filter((p) => p.brandIds.includes(b.id))
-  return {
-    ...b,
-    projectIds: linked.map((p) => p.id),
-    stopIds: [...new Set(linked.map((p) => stopOf(p.id)!.id))],
-  }
-})
+export const categories = [...new Set(brands.map((b) => b.category))]
 
-export const brandsOf = (project: Project) =>
-  project.brandIds.map((id) => brands.find((b) => b.id === id)).filter((b): b is Brand => !!b)
+/** « Stack technique » */
+export const tools: { group: string; items: string[] }[] = [
+  { group: 'Marketing', items: ['Google Ads', 'Meta Ads', 'SEO / SEA', 'Emailing', 'CRM', 'Growth'] },
+  { group: 'Analytics', items: ['Google Analytics', 'Tag Manager', 'Looker Studio', 'A/B Testing', 'Hotjar'] },
+  { group: 'Création', items: ['Figma', 'Photoshop', 'Premiere Pro', 'Canva'] },
+  { group: 'Dev & Automation', items: ['HTML/CSS', 'JavaScript', 'Zapier', 'Make'] },
+]
 
-/** One row per brand × project; unattributed brands get one row with no project. */
-export type IndexRow = { brand: Brand; project?: Project; stop?: Stop }
-
-export function brandIndex(): IndexRow[] {
-  const rows: IndexRow[] = []
-  for (const brand of brands) {
-    if (!brand.projectIds.length) rows.push({ brand })
-    for (const pid of brand.projectIds) {
-      rows.push({ brand, project: projects.find((p) => p.id === pid), stop: stopOf(pid) })
-    }
-  }
-  return rows.sort((a, b) => a.brand.name.localeCompare(b.brand.name, 'fr'))
+/** « Contact » */
+export const contact = {
+  title: 'Discutons de votre projet',
+  line: 'Une idée, un projet ? N’hésitez pas à me contacter.',
+  // TODO : vraie adresse et vrai lien LinkedIn — la source n'a que des valeurs provisoires
+  email: '',
+  linkedin: '',
 }

@@ -1,18 +1,17 @@
 import type { Metadata, Viewport } from 'next'
-import '@fontsource/gloock/400.css'
-import '@fontsource-variable/archivo/wdth.css'
-import '@fontsource/martian-mono/400.css'
+import '@fontsource-variable/fraunces/full.css'
+import '@fontsource-variable/figtree/index.css'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Louis R. — Digital Marketing Manager',
+  title: 'Louis R. — Digital Marketing Manager · Île Signal',
   description:
-    "Portfolio en cinq actes : contenus, influence, social media, publicité et IA. Campagnes pour 14 marques depuis 2018.",
+    'Portfolio de Louis R., Digital Marketing Manager : une promenade sur une petite île, du contenu à l’influence et à l’IA. Campagnes pour 15 marques depuis 2018.',
 }
 
 export const viewport: Viewport = {
-  themeColor: '#141311',
-  colorScheme: 'dark',
+  themeColor: '#e9e3d4',
+  colorScheme: 'light',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

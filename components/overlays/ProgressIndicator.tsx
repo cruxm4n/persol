@@ -2,39 +2,42 @@
 
 import { useEffect, useRef } from 'react'
 import { experience, useUi } from '@/lib/experience-store'
-import { ACTS } from '@/lib/scene-config'
+import { ZONES } from '@/lib/scene-config'
 
 /**
- * Where the reader is: act number over five, its name, and five segments that
- * fill as each act is crossed. Written straight to the DOM every frame.
+ * Where the reader is on the walk: « 03 / 06 », the place's name, and six
+ * small segments that fill as each place is crossed.
  */
 export function ProgressIndicator() {
-  const act = useUi((s) => s.act)
+  const zone = useUi((s) => s.zone)
   const fills = useRef<(HTMLSpanElement | null)[]>([])
   useEffect(() => {
     let raf = 0
     const tick = () => {
-      fills.current.forEach((el, i) => el && (el.style.transform = `scaleX(${experience.actsSmooth[i].toFixed(4)})`))
+      const p = experience.smooth
+      fills.current.forEach((el, i) => {
+        if (!el) return
+        const [a, b] = ZONES[i].range
+        el.style.transform = `scaleX(${Math.min(1, Math.max(0, (p - a) / (b - a))).toFixed(4)})`
+      })
       raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
   }, [])
-  const current = ACTS[act]
+  const current = ZONES[zone]
   return (
-    <div className="progress" aria-label={`Acte ${current.number} sur 05 : ${current.title}`} role="status">
+    <div className="progress">
       <p className="progress-count">
         <span className="progress-now" key={current.number}>
           {current.number}
         </span>
-        <span className="progress-total">/ 05</span>
+        <span className="progress-total">/ {String(ZONES.length).padStart(2, '0')}</span>
+        <span className="progress-title">{current.title}</span>
       </p>
-      <p className="progress-title" key={current.title}>
-        {current.title}
-      </p>
-      <div className="progress-track" aria-hidden="true">
-        {ACTS.map((a, i) => (
-          <span key={a.id} className={`progress-seg ${i === act ? 'is-current' : ''}`}>
+      <div className="progress-track">
+        {ZONES.map((z, i) => (
+          <span key={z.id} className={`progress-seg ${i === zone ? 'is-current' : ''}`}>
             <span ref={(el) => void (fills.current[i] = el)} className="progress-fill" />
           </span>
         ))}

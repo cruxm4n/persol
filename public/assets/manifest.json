@@ -1,0 +1,96 @@
+{
+  "note": "Images générées avec le skill image-use (backend codex, GPT Image). Ce sont des matières, des affiches abstraites et une illustration de l'île : aucune ne représente une campagne, une marque ou une personne réelle. Sans ces fichiers, le site garde ses surfaces peintes dans le code (lib/materials.ts) et ses placeholders (assets/placeholders).",
+  "drive_folder": "https://drive.google.com/drive/folders/18SP_0gup4sUtiMViNYYsAoPOmO6KJxtY",
+  "assets": [
+    {
+      "id": "surface-grass",
+      "file": "/assets/generated/arrival/grass.webp",
+      "source": "image-use",
+      "prompt": "Seamless tileable square texture, top-down orthographic view of short soft grass. Stylized hand-painted texture for a cozy low-poly video game, soft and calm, low contrast, even flat lighting with no cast shadows, no text, no letters, no logos, no people. Sage and moss greens (#a9b98a, #8fa872, #c3cf9e) with tiny lighter blades and a few pale clover specks. Edges must wrap without visible seams.",
+      "role": "Herbe de l'île",
+      "width": 512,
+      "height": 512,
+      "status": "ready"
+    },
+    {
+      "id": "surface-sand",
+      "file": "/assets/generated/arrival/sand.webp",
+      "source": "image-use",
+      "prompt": "Seamless tileable square texture, top-down orthographic view of fine beach sand. Stylized hand-painted, low contrast, even flat lighting, no text, no logos. Warm cream and pale ochre (#efe4cf, #e3d2b0, #d8c39c) with fine grain and a few tiny pale shell fragments, no footprints. Edges must wrap without visible seams.",
+      "role": "Plage et chemin",
+      "width": 512,
+      "height": 512,
+      "status": "ready"
+    },
+    {
+      "id": "surface-planks",
+      "file": "/assets/generated/arrival/planks.webp",
+      "source": "image-use",
+      "prompt": "Seamless tileable square texture, straight-on view of weathered wooden planks running horizontally, for a dock and floors. Stylized hand-painted, even flat lighting, no text, no logos. Honey and caramel browns (#b98a5e, #a67a50, #c79d72), thin darker gaps between planks, a few round nail heads, soft wood grain. Edges must wrap without visible seams.",
+      "role": "Ponton, quai, bancs, dos des affiches",
+      "width": 512,
+      "height": 512,
+      "status": "ready"
+    },
+    {
+      "id": "surface-roof",
+      "file": "/assets/generated/community/roof.webp",
+      "source": "image-use",
+      "prompt": "Seamless tileable square texture filling the entire frame edge to edge: rows of rounded clay roof tiles seen straight-on, the pattern continues past all four edges with no border, no vignette, no fade, no white margin. Stylized hand-painted look for a cozy low-poly game, soft terracotta tones (#d98a64, #c7744f, #e3a07e), even flat lighting, no text, no logos.",
+      "role": "Toits en terre cuite (les toits d'autres couleurs gardent leurs tuiles peintes)",
+      "width": 512,
+      "height": 512,
+      "status": "ready"
+    },
+    {
+      "id": "surface-listing",
+      "file": "/assets/generated/system/listing.webp",
+      "source": "image-use",
+      "prompt": "Seamless tileable square texture, straight-on view of vintage continuous fanfold computer printer paper with alternating pale green and off-white horizontal bands and a row of small round tractor-feed holes along both margins, completely blank with no printed characters. Pale mint (#cfe3d2) and cream (#f6efe2).",
+      "role": "Papier listing sur le tapis de l'atelier",
+      "width": 512,
+      "height": 512,
+      "status": "ready"
+    },
+    {
+      "id": "poster-a",
+      "file": "/assets/generated/attention/poster-a.webp",
+      "source": "image-use",
+      "prompt": "Abstract risograph print on off-white paper, purely geometric composition: a large soft circle overlapping two tall arches, in muted sage green (#a9b98a), lagoon teal (#8fc3b8) and terracotta (#d98a64), one small signal-red dot (#e0301e). Visible riso grain and slight misregistration, generous paper margin, flat front view. Absolutely no text, no letters, no numbers, no logos, no people, no products.",
+      "role": "Affiche décorative, rue des affiches",
+      "width": 512,
+      "height": 768,
+      "status": "ready"
+    },
+    {
+      "id": "poster-b",
+      "file": "/assets/generated/attention/poster-b.webp",
+      "source": "image-use",
+      "prompt": "Abstract risograph print on cream paper, purely geometric composition of stacked half-moons and a wavy horizon band, in warm sand (#e0b67d), lagoon teal (#8fc3b8) and deep sage (#6f9460). Visible riso grain, slight misregistration, generous paper margin, flat front view. Absolutely no text, no letters, no numbers, no logos, no people, no products.",
+      "role": "Toile du chevalet, studio",
+      "width": 512,
+      "height": 768,
+      "status": "ready"
+    },
+    {
+      "id": "poster-c",
+      "file": "/assets/generated/attention/poster-c.webp",
+      "source": "image-use",
+      "prompt": "Abstract risograph print on off-white paper, purely geometric composition: a grid of nine soft rounded squares, some filled terracotta (#d98a64), some sage (#a9b98a), some left as outlines, one small red dot (#e0301e). Visible riso grain and misregistration, generous margin, flat front view. Absolutely no text, no letters, no numbers, no logos, no people, no products.",
+      "role": "Affiche enroulée sur la colonne",
+      "width": 512,
+      "height": 768,
+      "status": "ready"
+    },
+    {
+      "id": "concept",
+      "file": "/assets/generated/arrival/concept.webp",
+      "source": "image-use",
+      "prompt": "Concept art for an original cozy low-poly game world: a small elongated island in a calm turquoise lagoon at soft morning light, high three-quarter aerial angle. A wooden dock with a little sailboat, a cream lighthouse with a single red lantern, a cozy studio house with terracotta roof, a short street of blank poster boards, a village plaza of six tiny houses linked by string lights around a big round tree, a wooden workshop with a windmill, a wooden quay. Pastel natural palette, gentle soft shadows, calm and premium. Original design, no existing game characters, no people, no text, no logos.",
+      "role": "Image de partage (Open Graph) et image fixe quand WebGL est indisponible",
+      "width": 1536,
+      "height": 1024,
+      "status": "ready"
+    }
+  ]
+}
