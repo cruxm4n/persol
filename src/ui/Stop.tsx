@@ -30,7 +30,13 @@ function CaseStudy({ project, stopIndex, note }: { project: Project; stopIndex: 
   const phase = useUi((s) => (s.project === project.id ? s.phase : -1))
   const hasResult = !!project.metrics?.length
   return (
-    <div className="case-track" data-case-track={stopIndex} id={project.id} data-project={project.id}>
+    <div
+      className="case-track"
+      data-case-track={stopIndex}
+      data-steps={Math.max(1, project.role.length)}
+      id={project.id}
+      data-project={project.id}
+    >
       <article className="case" aria-labelledby={`${project.id}-title`}>
         <p className="case-line">
           <span className="case-no">{project.number}</span>
@@ -126,7 +132,7 @@ function Secondary({ project }: { project: Project }) {
  * One stop of the route: a strong entry, one main case study, two or three
  * secondary ones, and an exit that hands over to the next stop.
  */
-export function StopSection({ stop, chapter, next }: { stop: Stop; chapter: number; next?: { label: string; chapter: number } }) {
+export function StopSection({ stop, chapter, next }: { stop: Stop; chapter: number; next?: { label: string; chapter: number; id: string } }) {
   const index = stops.indexOf(stop)
   const [main, ...rest] = stop.projects
   const [first, ...words] = stop.title.split(' ')
@@ -148,12 +154,17 @@ export function StopSection({ stop, chapter, next }: { stop: Stop; chapter: numb
             {stop.number}
           </span>
           <span className="stop-words">
-            <span>{first}</span>
-            <span>{words.join(' ')}</span>
+            <span>{first}</span> <span>{words.join(' ')}</span>
           </span>
         </h2>
         <p className="stop-sub">{stop.subtitle}</p>
         <p className="stop-intro">{stop.description}</p>
+        {stop.tools && (
+          <p className="stop-tools">
+            <span className="case-label">Outils</span>
+            {stop.tools.join(', ')}
+          </p>
+        )}
       </header>
 
       <CaseStudy project={main} stopIndex={index} note={stop.sceneNote} />
@@ -172,7 +183,7 @@ export function StopSection({ stop, chapter, next }: { stop: Stop; chapter: numb
       {next && (
         <footer className="stop-exit">
           <span className="case-label">À suivre</span>
-          <a href="#" onClick={(e) => (e.preventDefault(), scrollToChapter(next.chapter))}>
+          <a href={`#${next.id}`} onClick={(e) => (e.preventDefault(), scrollToChapter(next.chapter))}>
             {next.label}
           </a>
         </footer>

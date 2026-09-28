@@ -20,6 +20,8 @@ export const flight = {
   stopsSmooth: [0, 0, 0] as number[],
   /** progress through the main case study of each stop (its sticky track) */
   cases: [0, 0, 0] as number[],
+  /** progress (within its stop) at which each project of each stop is centred */
+  marks: [[], [], []] as number[][],
 }
 
 type UiState = {

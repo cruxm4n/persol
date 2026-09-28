@@ -1,18 +1,20 @@
-# Louis R. — portfolio « Mission »
+# Louis R. — portfolio « La Ligne »
 
-Portfolio immersif : le scroll pilote une caméra-drone au-dessus d'un terrain topographique.
-Chaque chapitre du parcours est un lieu du monde 3D.
+Portfolio éditorial en 3D : le parcours est une seule ligne tracée sur du papier millimétré,
+de 2018 à aujourd'hui. Le scroll encre la ligne et déplace la caméra d'un chapitre à l'autre.
 
-| # | Chapitre | Scène 3D |
-|---|----------|----------|
-| 00 | Lancement | Aire de décollage balisée, feux clignotants |
-| 01 | Profil | Noyau stratégique → 5 disciplines → audiences au sol (signaux en transit) |
-| 02 | Stop 02 — Community Engine | Réseau marque → profils → communautés, tracé étape par étape du rôle ; fiche éditoriale épinglée |
-| 03 | Missions | Trois écrans de contrôle ; choisir un dossier allume l'écran et oriente la caméra |
-| 04–05 | Expertises / Instruments | Tour à 4 niveaux : disciplines sur l'axe, outils en orbite |
-| 06 | Résultats | Chiffres peints sur une piste d'atterrissage, feux d'approche séquencés |
-| 07 | Parcours | Trajectoire tracée sur le terrain au fil du scroll |
-| 08 | Contact | Zone d'atterrissage et balise lumineuse |
+| # | Chapitre | Ce qui se passe |
+|---|----------|-----------------|
+| 00 | Hero | Nom, rôle, la ligne se dessine au chargement |
+| 01 | Marques | Les 14 marques en logos monochromes, rangées par secteur ; la 3D s'efface |
+| 02 | Profil | Le métier en une phrase, puis le sommaire des trois stops |
+| 03 | Stop 01 — Brand Attention | Planches accrochées le long de la ligne ; travelling sur rail, arrêt net sur chaque projet |
+| 04 | Stop 02 — Community Engine | Réseau marque → profils → communautés, tracé étape par étape du rôle ; orbite |
+| 05 | Stop 03 — Future Systems | Workflow en vue éclatée ; travelling compensé vers l'axonométrie, quarts de tour |
+| 06 | Parcours | Vue d'ensemble de la ligne, chiffres de carrière, étapes |
+| 07 | Contact | La ligne pointillée qui continue après aujourd'hui |
+
+L'**Index** (en-tête, ou `#index`) liste toutes les marques avec leur stop, projet, année et catégorie.
 
 ## Stack
 
@@ -26,22 +28,28 @@ npm run build    # build de production dans dist/ (chemins relatifs, déployable
 
 ## Modifier le contenu
 
-Les stops, projets et marques sont dans `src/lib/portfolio-data.ts` : pour relier une marque à un projet,
-ajoutez son id dans `brandIds` du projet — l'Index (en-tête) se met à jour seul. `SHOW_GAPS` affiche
-« À compléter » sur les champs vides ; passez-le à `false` au lancement pour les masquer.
+Les stops, projets et marques sont dans `src/lib/portfolio-data.ts` :
 
-Le reste du texte est dans `src/content.ts`. Les champs marqués `TODO` étaient des valeurs provisoires
-sur le site d'origine et sont à compléter :
+- pour relier une marque à un projet, ajoutez son id dans `brandIds` du projet : la fiche, l'Index
+  et les filtres se mettent à jour seuls ;
+- `image` sur un projet du Stop 01 remplace la planche hachurée par le visuel (traité en deux encres) ;
+- `logo` sur une marque (chemin d'image) remplace le logo par défaut ;
+- `SHOW_GAPS` affiche « À compléter » sur les champs vides ; passez-le à `false` au lancement.
 
-- `contact.email` et `contact.linkedin` (le site d'origine affichait `contact@example.com`)
-- `projects[].client` et `projects[].result` — les projets d'origine étaient des contenus de test ;
-  les trois dossiers reprennent les types de missions décrits dans les expertises
-- l'unité du « +100 — Budget géré »
-- dates / entreprises du parcours si souhaité
+Les logos viennent de [simple-icons](https://simpleicons.org) (CC0), dans `src/lib/logos.ts`.
+Nintendo, Prime Video et POCO n'y figurent pas : ils sont composés en typographie tant qu'aucun
+fichier n'est fourni.
+
+Le reste du texte est dans `src/content.ts`. À compléter :
+
+- `contact.email` et `contact.linkedin` (le site d'origine affichait `contact@example.com`) ;
+- l'unité du « +100 de budget géré » ;
+- dates et entreprises du parcours si souhaité ;
+- pour chaque projet : contexte, livrables, marques, année, résultat.
 
 ## Accessibilité & performance
 
 - Tout le contenu est en HTML sémantique au-dessus du canvas (lisible, indexable, navigable au clavier).
-- `prefers-reduced-motion` : scroll natif, plus de flottement caméra ni d'animations CSS.
-- Mode allégé automatique sur mobile / petites configurations (pas de post-traitement, terrain simplifié).
-- Sans WebGL, le site reste entièrement lisible sur un fond statique.
+- `prefers-reduced-motion` : scroll natif, caméra sans amorti, pas d'animation CSS.
+- Sans WebGL, un plan statique de la ligne (années, stops, aujourd'hui) remplace la 3D.
+- Pas de post-traitement ; les scènes n'utilisent que des lignes, des plans et des instances.

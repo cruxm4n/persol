@@ -21,6 +21,7 @@ export default function App() {
   useScrollDriver()
   const ready = useUi((s) => s.ready)
   const inStop = useUi((s) => s.inStop)
+  const active = useUi((s) => s.active)
   const { webgl, lite } = useMemo(() => {
     const small = window.matchMedia('(max-width: 760px), (pointer: coarse)').matches
     return { webgl: hasWebGL(), lite: small }
@@ -28,11 +29,11 @@ export default function App() {
 
   return (
     <>
-      <a className="skip" href="#profil">
+      <a className="skip" href="#marques">
         Aller au contenu
       </a>
       {webgl ? (
-        <div className={`stage ${ready ? 'is-ready' : ''} ${inStop ? 'is-under-text' : ''}`}>
+        <div className={`stage ${ready ? 'is-ready' : ''} ${inStop ? 'is-under-text' : ''} ${active === 1 ? 'is-quiet' : ''}`}>
           <Suspense fallback={null}>
             <World lite={lite} />
           </Suspense>

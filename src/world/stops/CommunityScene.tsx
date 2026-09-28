@@ -130,7 +130,6 @@ export function CommunityScene() {
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.05)
     const rate = flight.reducedMotion ? 30 : 3
-    flight.stopsSmooth[STOP] = THREE.MathUtils.damp(flight.stopsSmooth[STOP], flight.stops[STOP], rate, dt)
     smooth.current.case = THREE.MathUtils.damp(smooth.current.case, flight.cases[STOP], rate, dt)
     const p = flight.stopsSmooth[STOP]
     const grow = THREE.MathUtils.smoothstep(p, 0.01, 0.2)

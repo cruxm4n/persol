@@ -1,52 +1,16 @@
-import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
-import {
-  chapters,
-  contact,
-  expertises,
-  hero,
-  identity,
-  journey,
-  profile,
-  projects,
-  stack,
-  stats,
-} from '../content'
+import { useState } from 'react'
+import { contact, hero, identity, journey, profile, stats } from '../content'
+import { SHOW_GAPS, brands, stops } from '../lib/portfolio-data'
 import { scrollToChapter } from '../scroll'
-import { setUi, useUi } from '../store'
-import { stops } from '../lib/portfolio-data'
 import { StopSection } from './Stop'
+import { BrandWall } from './BrandWall'
 
-function Chapter({
-  index,
-  tall,
-  align = 'left',
-  children,
-}: {
-  index: number
-  tall?: boolean
-  align?: 'left' | 'right'
-  children: ReactNode
-}) {
-  const active = useUi((s) => s.active === index)
-  const c = chapters[index]
-  return (
-    <section
-      id={c.id}
-      data-chapter={index}
-      className={`chapter ${tall ? 'chapter--tall' : ''} ${active ? 'is-active' : ''}`}
-      aria-labelledby={`${c.id}-title`}
-    >
-      <div className={`panel panel--${align}`}>
-        <p className="kicker">
-          <span className="kicker-code">{c.code}</span>
-          <span className="kicker-rule" />
-          <span>{c.label}</span>
-        </p>
-        {children}
-      </div>
-    </section>
-  )
-}
+/** Chapter order: hero, brands, profile, the stops, parcours, contact. */
+const BRANDS = 1
+const PROFILE = 2
+const STOP_CHAPTER = 3
+const PARCOURS = STOP_CHAPTER + stops.length
+const CONTACT = PARCOURS + 1
 
 function Intro() {
   return (
@@ -56,15 +20,14 @@ function Intro() {
         <span className="hero-since">depuis {identity.since}</span>
       </p>
       <h1 id="lancement-title" className="hero-name">
-        <span>Louis</span>
-        <span className="hero-initial">R.</span>
+        <span>Louis</span> <span className="hero-initial">R.</span>
       </h1>
       <p className="hero-lede">{hero.lede}</p>
       <p className="hero-brands">{hero.brands}</p>
       <div className="hero-foot">
         {identity.available && <p>Disponible pour de nouvelles missions.</p>}
-        <a href="#profil" onClick={(e) => (e.preventDefault(), scrollToChapter(1))}>
-          Suivre la ligne depuis {identity.since}
+        <a href="#marques" onClick={(e) => (e.preventDefault(), scrollToChapter(BRANDS))}>
+          Voir les {brands.length} marques
         </a>
       </div>
     </section>
@@ -73,208 +36,122 @@ function Intro() {
 
 function Profile() {
   return (
-    <Chapter index={1}>
-      <h2 id="profil-title" className="title">
+    <section id="profil" data-chapter={PROFILE} className="profile" aria-labelledby="profil-title">
+      <p className="section-label">Profil</p>
+      <h2 id="profil-title" className="profile-title">
         {profile.title}
       </h2>
-      <p className="lead">{profile.lead}</p>
-      <p className="body">{profile.body}</p>
-      <ul className="tags" aria-label="Domaines">
-        {profile.pillars.map((p) => (
-          <li key={p.id}>{p.label}</li>
-        ))}
-      </ul>
-    </Chapter>
-  )
-}
-
-function Missions() {
-  const focus = useUi((s) => s.focusProject)
-  const active = useUi((s) => s.active)
-  useEffect(() => {
-    if (active !== 3 && focus !== null) setUi({ focusProject: null })
-  }, [active, focus])
-
-  return (
-    <Chapter index={3}>
-      <h2 id="projets-title" className="title">
-        Missions &amp; campagnes.
-      </h2>
-      <p className="body">Sélectionnez un dossier : l'écran correspondant s'allume sur le terrain.</p>
-      <ol className="dossiers">
-        {projects.map((p, i) => {
-          const open = focus === i
-          return (
-            <li key={p.id} className={open ? 'is-open' : ''}>
-              <button
-                type="button"
-                aria-expanded={open}
-                aria-controls={`dossier-${p.id}`}
-                onClick={() => setUi({ focusProject: open ? null : i })}
-              >
-                <span className="dossier-id">{p.id}</span>
-                <span className="dossier-title">{p.title}</span>
-                <span className="dossier-role">{p.role}</span>
-              </button>
-              <div id={`dossier-${p.id}`} className="dossier-body" hidden={!open}>
-                <p>{p.summary}</p>
-                <dl>
-                  {p.client && (
-                    <>
-                      <dt>Client</dt>
-                      <dd>{p.client}</dd>
-                    </>
-                  )}
-                  <dt>Rôle</dt>
-                  <dd>{p.role}</dd>
-                  <dt>Leviers</dt>
-                  <dd>{p.channels.join(' · ')}</dd>
-                  <dt>Résultat</dt>
-                  <dd className={p.result ? 'result' : ''}>
-                    {p.result ? `${p.result.value} — ${p.result.label}` : 'Étude de cas détaillée sur demande'}
-                  </dd>
-                </dl>
-              </div>
+      <p className="profile-lead">{profile.lead}</p>
+      <p className="profile-body">{profile.body}</p>
+      <nav className="route" aria-labelledby="route-title">
+        <p id="route-title" className="route-intro">
+          {profile.routeIntro}
+        </p>
+        <ol>
+          {stops.map((s, i) => (
+            <li key={s.id}>
+              <a href={`#${s.id}`} onClick={(e) => (e.preventDefault(), scrollToChapter(STOP_CHAPTER + i))}>
+                <span className="route-no">{s.number}</span>
+                <span className="route-title">{s.title}</span>
+                <span className="route-sub">{s.subtitle}</span>
+              </a>
             </li>
-          )
-        })}
-      </ol>
-    </Chapter>
-  )
-}
-
-function Expertises() {
-  return (
-    <Chapter index={4}>
-      <h2 id="expertises-title" className="title">
-        Quatre disciplines, un seul plan de vol.
-      </h2>
-      <ol className="expertises">
-        {expertises.map((e) => (
-          <li key={e.id}>
-            <span className="meta">{e.id}</span>
-            <div>
-              <h3>{e.title}</h3>
-              <p>{e.text}</p>
-            </div>
-          </li>
-        ))}
-      </ol>
-    </Chapter>
-  )
-}
-
-function Stack() {
-  return (
-    <Chapter index={5}>
-      <h2 id="stack-title" className="title">
-        Instruments de bord.
-      </h2>
-      <p className="body">Les outils avec lesquels je mesure, crée et automatise.</p>
-      <div className="stack">
-        {stack.map((s) => (
-          <div key={s.id}>
-            <h3 className="meta">{s.label}</h3>
-            <ul>
-              {s.tools.map((t) => (
-                <li key={t}>{t}</li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-    </Chapter>
-  )
-}
-
-function Results() {
-  return (
-    <Chapter index={6}>
-      <h2 id="resultats-title" className="title">
-        Ce que la piste retient.
-      </h2>
-      <dl className="stats">
-        {stats.map((s) => (
-          <div key={s.label}>
-            <dt>{s.label}</dt>
-            <dd>{s.value}</dd>
-          </div>
-        ))}
-      </dl>
-    </Chapter>
+          ))}
+        </ol>
+      </nav>
+    </section>
   )
 }
 
 function Journey() {
   return (
-    <Chapter index={7}>
-      <h2 id="parcours-title" className="title">
-        Parcours.
+    <section id="parcours" data-chapter={PARCOURS} className="journey" aria-labelledby="parcours-title">
+      <p className="section-label">Parcours</p>
+      <h2 id="parcours-title" className="journey-title" aria-label="De 2018 à aujourd'hui">
+        <span>2018</span>
+        <span>aujourd'hui</span>
       </h2>
-      <ol className="journey">
-        {journey.map((j) => (
-          <li key={j.title}>
-            <span className="meta">{j.at}</span>
+      <dl className="ledger">
+        {stats.map((s) => (
+          <div key={s.label}>
+            <dt>
+              {s.label}
+              {s.note && SHOW_GAPS && <span className="gap">{s.note}</span>}
+            </dt>
+            <dd>{s.value}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="ledger-note">Chiffres cumulés sur l'ensemble du parcours, sans rattachement à un projet précis.</p>
+      <ol className="milestones">
+        {journey.map((j, i) => (
+          <li key={j.title} className={i === journey.length - 1 ? 'is-now' : ''}>
+            <span className="milestone-at">{j.at}</span>
             <h3>{j.title}</h3>
             <p>{j.text}</p>
           </li>
         ))}
       </ol>
-    </Chapter>
+    </section>
   )
 }
 
+const hasEmail = !contact.email.endsWith('@example.com')
+const hasLinkedin = contact.linkedin.url !== '#'
+
 function Contact() {
-  const [sent, setSent] = useState(false)
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const data = new FormData(e.currentTarget)
-    const subject = encodeURIComponent(`Projet — ${data.get('name') ?? ''}`)
-    const body = encodeURIComponent(`${data.get('message') ?? ''}\n\n${data.get('name') ?? ''} · ${data.get('email') ?? ''}`)
-    window.location.href = `mailto:${contact.email}?subject=${subject}&body=${body}`
-    setSent(true)
+  const [copied, setCopied] = useState(false)
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(contact.email)
+      setCopied(true)
+    } catch {
+      window.getSelection()?.selectAllChildren(document.getElementById('contact-email')!)
+    }
   }
 
   return (
-    <Chapter index={8}>
-      <h2 id="contact-title" className="title">
-        {contact.title}.
+    <section id="contact" data-chapter={CONTACT} className="contact" aria-labelledby="contact-title">
+      <p className="section-label">Contact</p>
+      <h2 id="contact-title" className="contact-title">
+        {contact.title}
       </h2>
-      <p className="lead">{contact.text}</p>
-      <ul className="channels">
-        <li>
-          <span className="meta">Email</span>
-          <a href={`mailto:${contact.email}`}>{contact.email}</a>
-        </li>
-        <li>
-          <span className="meta">LinkedIn</span>
-          <a href={contact.linkedin.url} target="_blank" rel="noreferrer">
-            {contact.linkedin.label}
-          </a>
-        </li>
-      </ul>
-      <form className="form" onSubmit={onSubmit}>
-        <label>
-          <span className="meta">Nom</span>
-          <input name="name" autoComplete="name" required />
-        </label>
-        <label>
-          <span className="meta">Email</span>
-          <input name="email" type="email" autoComplete="email" required />
-        </label>
-        <label className="form-wide">
-          <span className="meta">Message</span>
-          <textarea name="message" rows={2} required />
-        </label>
-        <button type="submit" className="launch launch--small">
-          <span className="launch-ring" aria-hidden="true" />
-          <span>{sent ? 'Message prêt dans votre messagerie' : 'Envoyer le message'}</span>
-        </button>
-      </form>
+      <p className="contact-text">{contact.text}</p>
+      <dl className="contact-lines">
+        <div>
+          <dt>E-mail</dt>
+          <dd>
+            {hasEmail ? (
+              <>
+                <a id="contact-email" href={`mailto:${contact.email}`}>
+                  {contact.email}
+                </a>
+                <button type="button" className="contact-copy" onClick={copy}>
+                  {copied ? 'Adresse copiée' : "Copier l'adresse"}
+                </button>
+              </>
+            ) : (
+              SHOW_GAPS && <span className="gap">Adresse à renseigner</span>
+            )}
+          </dd>
+        </div>
+        <div>
+          <dt>LinkedIn</dt>
+          <dd>
+            {hasLinkedin ? (
+              <a href={contact.linkedin.url} target="_blank" rel="noreferrer">
+                {contact.linkedin.label}
+              </a>
+            ) : (
+              SHOW_GAPS && <span className="gap">Lien à renseigner</span>
+            )}
+          </dd>
+        </div>
+      </dl>
       <p className="footnote">
-        © {new Date().getFullYear()} {identity.name} — {identity.role}
+        © {new Date().getFullYear()} {identity.name}, {identity.role}
       </p>
-    </Chapter>
+    </section>
   )
 }
 
@@ -282,12 +159,23 @@ export function Chapters() {
   return (
     <main className="story">
       <Intro />
+      <BrandWall chapter={BRANDS} />
       <Profile />
-      <StopSection stop={stops[1]} chapter={2} next={{ label: `Stop ${stops[2].number} — ${stops[2].title}`, chapter: 3 }} />
-      <Missions />
-      <Expertises />
-      <Stack />
-      <Results />
+      {stops.map((s, i) => {
+        const next = stops[i + 1]
+        return (
+          <StopSection
+            key={s.id}
+            stop={s}
+            chapter={STOP_CHAPTER + i}
+            next={
+              next
+                ? { label: `Stop ${next.number} — ${next.title}`, chapter: STOP_CHAPTER + i + 1, id: next.id }
+                : { label: 'Le parcours depuis 2018', chapter: PARCOURS, id: 'parcours' }
+            }
+          />
+        )
+      })}
       <Journey />
       <Contact />
     </main>

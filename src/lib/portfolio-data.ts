@@ -54,6 +54,8 @@ export type Stop = {
   visualDirection: string
   /** Légende de la scène 3D, affichée sous la fiche principale */
   sceneNote?: string
+  /** Outils cités par le site d'origine, en métadonnée du stop */
+  tools?: string[]
   /** Le premier projet est le projet principal ; 2 ou 3 secondaires maximum */
   projects: Project[]
 }
@@ -90,6 +92,7 @@ export const stops: Stop[] = [
     description:
       "Des contenus, des campagnes et des lancements conçus pour qu'une marque soit vue, comprise et retenue.",
     visualDirection: 'Planches accrochées le long de la ligne ; travelling latéral, arrêts nets.',
+    sceneNote: 'Les planches attendent leurs visuels : captures, photos, extraits de campagne.',
     projects: [
       {
         id: 'lancement',
@@ -179,6 +182,9 @@ export const stops: Stop[] = [
     description:
       'Automatiser ce qui se répète pour garder le temps pour ce qui compte : IA, workflows, données.',
     visualDirection: 'Workflow en vue éclatée ; passage en axonométrie, rotations par quarts de tour.',
+    sceneNote: 'Schéma : les étapes d\u2019un workflow type, pas un outil précis.',
+    // stack « Dev & Automation » et « Analytics » du site d'origine
+    tools: ['Zapier', 'Make', 'Looker Studio', 'Google Analytics', 'Tag Manager', 'HTML/CSS', 'JavaScript'],
     projects: [
       {
         id: 'workflow-ia',

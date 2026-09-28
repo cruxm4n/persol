@@ -13,10 +13,7 @@ let stopBands: (Band | null)[] = []
 /** Extent of each case study. */
 let projectBands: (Band & { id: string })[] = []
 /** Sticky track of each stop's main case study. */
-let caseBands: (Band | null)[] = []
-
-/** Number of narrative steps in a main case study (one per role step). */
-export const CASE_STEPS = 4
+let caseBands: ((Band & { steps: number }) | null)[] = []
 
 const band = (el: HTMLElement): Band => {
   const r = el.getBoundingClientRect()
@@ -35,7 +32,18 @@ function measure() {
   })
   caseBands = [0, 1, 2].map((i) => {
     const el = document.querySelector<HTMLElement>(`[data-case-track="${i}"]`)
-    return el ? band(el) : null
+    return el ? { ...band(el), steps: Number(el.dataset.steps) || 1 } : null
+  })
+  // where each project of a stop sits, as progress through that stop
+  flight.marks = stopBands.map((s, i) => {
+    const el = document.querySelector<HTMLElement>(`[data-stop="${i}"]`)
+    if (!s || !el) return []
+    return Array.from(el.querySelectorAll<HTMLElement>('[data-project]')).map((p) => {
+      const b = band(p)
+      // a pinned track is "at" its project from its first third
+      const at = p.dataset.caseTrack ? b.top + (b.bottom - b.top) * 0.35 : (b.top + b.bottom) / 2
+      return (at - s.top) / (s.bottom - s.top)
+    })
   })
   projectBands = Array.from(document.querySelectorAll<HTMLElement>('[data-project]')).map((el) => ({
     ...band(el),
@@ -68,7 +76,7 @@ function update(scrollY: number) {
     // the sticky sheet pins at the top: progress runs while the track scrolls under it
     const p = (scrollY + window.innerHeight * 0.3 - b.top) / (b.bottom - b.top - window.innerHeight * 0.7)
     flight.cases[i] = Math.min(1, Math.max(0, p))
-    if (p >= 0 && p <= 1.05) phase = Math.min(CASE_STEPS - 1, Math.floor(Math.min(0.999, Math.max(0, p)) * CASE_STEPS))
+    if (p >= 0 && p <= 1.05) phase = Math.min(b.steps - 1, Math.floor(Math.min(0.999, Math.max(0, p)) * b.steps))
   })
   const project = projectBands.find((b) => probe >= b.top && probe <= b.bottom)?.id ?? null
   const inStop = flight.stops.some((v) => v > 0.02 && v < 0.98)

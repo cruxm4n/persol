@@ -5,7 +5,9 @@ import { setUi } from '../store'
 import { CameraRig } from './CameraRig'
 import { CareerLine } from './Line'
 import { Ground } from './Ground'
+import { AttentionScene } from './stops/AttentionScene'
 import { CommunityScene } from './stops/CommunityScene'
+import { SystemsScene } from './stops/SystemsScene'
 import { COLORS } from './palette'
 
 function Ready() {
@@ -33,7 +35,9 @@ export function World({ lite }: { lite: boolean }) {
         <CameraRig />
         <Ground />
         <CareerLine />
+        <AttentionScene />
         <CommunityScene />
+        <SystemsScene />
         <Ready />
       </Suspense>
     </Canvas>
