@@ -1,55 +1,51 @@
-# Louis R. — portfolio « La Ligne »
+# Louis R. — portfolio « La Maquette »
 
-Portfolio éditorial en 3D : le parcours est une seule ligne tracée sur du papier millimétré,
-de 2018 à aujourd'hui. Le scroll encre la ligne et déplace la caméra d'un chapitre à l'autre.
+Portfolio scrollable en cinq actes. Le parcours est une maquette à l'échelle 1:50 posée sur une
+table à dessin, dans une pièce sombre ; le scroll est le seul moteur (pas de déplacement libre) :
+la caméra suit une trajectoire prédéfinie par acte.
 
-| # | Chapitre | Ce qui se passe |
-|---|----------|-----------------|
-| 00 | Hero | Nom, rôle, la ligne se dessine au chargement |
-| 01 | Marques | Les 14 marques en logos monochromes, rangées par secteur ; la 3D s'efface |
-| 02 | Profil | Le métier en une phrase, puis le sommaire des trois stops |
-| 03 | Stop 01 — Brand Attention | Planches accrochées le long de la ligne ; travelling sur rail, arrêt net sur chaque projet |
-| 04 | Stop 02 — Community Engine | Réseau marque → profils → communautés, tracé étape par étape du rôle ; orbite |
-| 05 | Stop 03 — Future Systems | Workflow en vue éclatée ; travelling compensé vers l'axonométrie, quarts de tour |
-| 06 | Parcours | Vue d'ensemble de la ligne, chiffres de carrière, étapes |
-| 07 | Contact | La ligne pointillée qui continue après aujourd'hui |
+| Acte | Nom | État |
+|------|-----|------|
+| 01 | Signal | En cours : panneau 4 × 3 miniature, allumage des lampes, recul qui révèle la maquette |
+| 02 | Attention | À construire (après validation de l'acte 01) |
+| 03 | Network | À construire |
+| 04 | System | À construire |
+| 05 | Contact | À construire |
 
-L'**Index** (en-tête, ou `#index`) liste toutes les marques avec leur stop, projet, année et catégorie.
+La version précédente (« La Ligne », Vite) est au commit `64e2aa3`.
 
 ## Stack
 
-Vite · React 19 · TypeScript · Three.js · React Three Fiber · drei · Lenis.
+Next.js 16 (export statique) · TypeScript · React Three Fiber · drei · postprocessing · GSAP · Lenis.
 
 ```bash
 npm install
-npm run dev      # développement
-npm run build    # build de production dans dist/ (chemins relatifs, déployable partout)
+npm run assets   # télécharge les matières générées (Higgsfield) dans public/textures
+npm run dev      # http://localhost:3000
+NODE_ENV=production npm run build   # export statique dans out/
 ```
 
-## Modifier le contenu
+Ajouter `?q=low` à l'URL force le profil léger (mobile / machine lente).
 
-Les stops, projets et marques sont dans `src/lib/portfolio-data.ts` :
+## Structure
 
-- pour relier une marque à un projet, ajoutez son id dans `brandIds` du projet : la fiche, l'Index
-  et les filtres se mettent à jour seuls ;
-- `image` sur un projet du Stop 01 remplace la planche hachurée par le visuel (traité en deux encres) ;
-- `logo` sur une marque (chemin d'image) remplace le logo par défaut ;
-- `SHOW_GAPS` affiche « À compléter » sur les champs vides ; passez-le à `false` au lancement.
+- `components/experience/` : `PortfolioExperience` (orchestration), `Stage` (canvas, effets),
+  `ExperienceCamera` (trajectoire), `Act01Signal` (maquette), `intro.ts` (séquence d'ouverture).
+- `components/overlays/` : HUD, progression 01/05, archive des marques, textes de l'acte 01.
+- `components/ui/` : chargeur, curseur (repère de coupe), révélation de texte, annotations
+  épinglées à la maquette, bouton magnétique.
+- `lib/` : données (`portfolio-data.ts`, `content.ts`, `logos.ts`), `camera-paths.ts`,
+  `scene-config.ts`, `motion-config.ts`, `responsive-config.ts`, `textures.ts` (affiche, feuille,
+  étiquette dessinées au canvas), `scroll.ts`, `experience-store.ts`.
 
-Les logos viennent de [simple-icons](https://simpleicons.org) (CC0), dans `src/lib/logos.ts`.
-Nintendo, Prime Video et POCO n'y figurent pas : ils sont composés en typographie tant qu'aucun
-fichier n'est fourni.
+## Assets
 
-Le reste du texte est dans `src/content.ts`. À compléter :
+`assets/manifest.json` liste les matières générées avec Higgsfield (bois, papier, épreuve
+d'imprimerie, papier listing, kraft) : URL, usage, acte. `npm run assets` les convertit en JPEG
+dans `public/textures/`. Sans ces fichiers, le site utilise des matières procédurales.
 
-- `contact.email` et `contact.linkedin` (le site d'origine affichait `contact@example.com`) ;
-- l'unité du « +100 de budget géré » ;
-- dates et entreprises du parcours si souhaité ;
-- pour chaque projet : contexte, livrables, marques, année, résultat.
+## Contenu à compléter
 
-## Accessibilité & performance
-
-- Tout le contenu est en HTML sémantique au-dessus du canvas (lisible, indexable, navigable au clavier).
-- `prefers-reduced-motion` : scroll natif, caméra sans amorti, pas d'animation CSS.
-- Sans WebGL, un plan statique de la ligne (années, aujourd'hui) remplace la 3D.
-- Pas de post-traitement ; les scènes n'utilisent que des lignes, des plans et des instances.
+Rien n'est inventé : les champs inconnus restent vides (`SHOW_GAPS` dans `lib/portfolio-data.ts`).
+À fournir : liens marque → projet → année, résultats, visuels, unité du « +100 budget géré »,
+e-mail et LinkedIn.
